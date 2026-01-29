@@ -1,14 +1,14 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Ally Sphere - Professional Corporate Design System */
+/* AllySphere - Anjuman College Professional Design System */
 
 @layer base {
   :root {
-    /* Lime Green Theme */
-    --background: 0 0% 100%;
+    /* Lime Yellow/Green Theme */
+    --background: 60 100% 97%;
     --foreground: 80 30% 10%;
 
     --card: 0 0% 100%;
@@ -18,26 +18,26 @@
     --popover-foreground: 80 30% 10%;
 
     /* Lime Green Primary */
-    --primary: 72 77% 55%;
-    --primary-foreground: 80 30% 10%;
+    --primary: 80 70% 45%;
+    --primary-foreground: 0 0% 100%;
 
-    /* Light Lime Secondary */
-    --secondary: 72 40% 92%;
+    /* Light Lime Yellow Secondary */
+    --secondary: 65 60% 92%;
     --secondary-foreground: 80 30% 10%;
 
-    --muted: 72 20% 92%;
+    --muted: 65 30% 92%;
     --muted-foreground: 80 15% 40%;
 
     /* Darker Lime Accent */
-    --accent: 72 60% 40%;
+    --accent: 85 65% 35%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 72 20% 85%;
-    --input: 72 20% 85%;
-    --ring: 72 77% 45%;
+    --border: 65 30% 85%;
+    --input: 65 30% 85%;
+    --ring: 80 70% 40%;
 
     --radius: 0.5rem;
 
@@ -48,19 +48,19 @@
     --warning-foreground: 0 0% 100%;
 
     /* Sidebar */
-    --sidebar-background: 72 60% 40%;
+    --sidebar-background: 80 65% 40%;
     --sidebar-foreground: 0 0% 100%;
     --sidebar-primary: 0 0% 100%;
-    --sidebar-primary-foreground: 72 60% 40%;
-    --sidebar-accent: 72 50% 50%;
+    --sidebar-primary-foreground: 80 65% 40%;
+    --sidebar-accent: 80 55% 50%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 72 50% 50%;
-    --sidebar-ring: 72 77% 55%;
+    --sidebar-border: 80 55% 50%;
+    --sidebar-ring: 80 70% 45%;
 
     /* Custom gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(72 60% 40%), hsl(72 70% 50%));
-    --gradient-accent: linear-gradient(135deg, hsl(72 77% 55%), hsl(72 80% 65%));
-    --gradient-hero: linear-gradient(135deg, hsl(72 60% 40%) 0%, hsl(72 70% 50%) 50%, hsl(72 77% 55%) 100%);
+    --gradient-primary: linear-gradient(135deg, hsl(80 65% 40%), hsl(75 70% 50%));
+    --gradient-accent: linear-gradient(135deg, hsl(80 70% 45%), hsl(70 75% 55%));
+    --gradient-hero: linear-gradient(135deg, hsl(80 65% 40%) 0%, hsl(75 70% 50%) 50%, hsl(70 75% 55%) 100%);
   }
 
   .dark {
@@ -73,16 +73,16 @@
     --popover: 80 20% 12%;
     --popover-foreground: 60 30% 96%;
 
-    --primary: 72 77% 55%;
+    --primary: 80 70% 50%;
     --primary-foreground: 80 30% 10%;
 
     --secondary: 80 20% 18%;
     --secondary-foreground: 60 30% 96%;
 
     --muted: 80 20% 18%;
-    --muted-foreground: 72 15% 60%;
+    --muted-foreground: 75 15% 60%;
 
-    --accent: 72 60% 50%;
+    --accent: 80 60% 55%;
     --accent-foreground: 80 30% 10%;
 
     --destructive: 0 63% 31%;
@@ -90,7 +90,7 @@
 
     --border: 80 20% 20%;
     --input: 80 20% 20%;
-    --ring: 72 77% 55%;
+    --ring: 80 70% 50%;
 
     --success: 142 71% 35%;
     --success-foreground: 0 0% 100%;
@@ -99,12 +99,12 @@
 
     --sidebar-background: 80 20% 8%;
     --sidebar-foreground: 60 30% 96%;
-    --sidebar-primary: 72 77% 55%;
+    --sidebar-primary: 80 70% 50%;
     --sidebar-primary-foreground: 80 20% 8%;
     --sidebar-accent: 80 20% 18%;
     --sidebar-accent-foreground: 60 30% 96%;
     --sidebar-border: 80 20% 18%;
-    --sidebar-ring: 72 77% 55%;
+    --sidebar-ring: 80 70% 50%;
   }
 }
 
