@@ -71,7 +71,8 @@ Format as JSON array with fields: jobTitle, industry, skills (array), reason`;
     });
   } catch (error) {
     console.error('Error in ai-recommendations:', error);
-    return new Response(JSON.stringify({ error: error.message, recommendations: [] }), {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    return new Response(JSON.stringify({ error: errorMessage, recommendations: [] }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });

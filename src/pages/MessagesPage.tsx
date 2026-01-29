@@ -126,8 +126,9 @@ const MessagesPage: React.FC = () => {
         return;
       }
 
+      // Use profiles_public to avoid exposing sensitive PII
       const { data: profiles } = await supabase
-        .from('profiles')
+        .from('profiles_public')
         .select('*')
         .in('user_id', partnerIds);
 

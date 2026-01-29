@@ -38,9 +38,10 @@ const AlumniDirectory: React.FC = () => {
 
   const fetchAlumni = async () => {
     try {
+      // Use profiles_public to avoid exposing sensitive PII (email, phone)
       const { data, error } = await supabase
         .from('alumni_details')
-        .select('*, profiles(*)');
+        .select('*, profiles:profiles_public(*)');
 
       if (error) throw error;
 

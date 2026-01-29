@@ -42,10 +42,10 @@ const Dashboard: React.FC = () => {
 
   const fetchDashboardData = async () => {
     try {
-      // Fetch recommended alumni (mentors)
+      // Fetch recommended alumni (mentors) - use profiles_public to avoid exposing PII
       const { data: alumniData } = await supabase
         .from('alumni_details')
-        .select('*, profiles(*)')
+        .select('*, profiles:profiles_public(*)')
         .eq('is_mentor_available', true)
         .limit(3);
 

@@ -64,10 +64,10 @@ const MentorshipPage: React.FC = () => {
 
   const fetchData = async () => {
     try {
-      // Fetch available mentors
+      // Fetch available mentors - use profiles_public to avoid exposing PII
       const { data: mentorData } = await supabase
         .from('alumni_details')
-        .select('*, profiles(*)')
+        .select('*, profiles:profiles_public(*)')
         .eq('is_mentor_available', true);
 
       if (mentorData) {
@@ -82,10 +82,10 @@ const MentorshipPage: React.FC = () => {
         .order('created_at', { ascending: false });
 
       if (myRequestsData) {
-        // Fetch profiles for alumni
+        // Fetch profiles for alumni - use profiles_public
         const alumniIds = myRequestsData.map(r => r.alumni_id);
         const { data: alumniProfiles } = await supabase
-          .from('profiles')
+          .from('profiles_public')
           .select('*')
           .in('user_id', alumniIds);
 
@@ -105,10 +105,10 @@ const MentorshipPage: React.FC = () => {
         .order('created_at', { ascending: false });
 
       if (incomingData) {
-        // Fetch profiles for students
+        // Fetch profiles for students - use profiles_public
         const studentIds = incomingData.map(r => r.student_id);
         const { data: studentProfiles } = await supabase
-          .from('profiles')
+          .from('profiles_public')
           .select('*')
           .in('user_id', studentIds);
 
