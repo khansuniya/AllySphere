@@ -22,9 +22,13 @@ import {
   Menu,
   X,
   GraduationCap,
-  Search
+  Search,
+  Briefcase,
+  Heart,
+  Trophy
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import acetLogo from '@/assets/acet-logo.jpeg';
 
 const Navbar: React.FC = () => {
   const { user, profile, userRole, signOut } = useAuth();
@@ -34,9 +38,12 @@ const Navbar: React.FC = () => {
 
   const navItems = [
     { path: '/dashboard', label: 'Dashboard', icon: Home },
-    { path: '/alumni', label: 'Alumni Directory', icon: Users },
+    { path: '/alumni', label: 'Alumni', icon: Users },
     { path: '/mentorship', label: 'Mentorship', icon: GraduationCap },
+    { path: '/jobs', label: 'Jobs', icon: Briefcase },
     { path: '/events', label: 'Events', icon: Calendar },
+    { path: '/fundraising', label: 'Fundraising', icon: Heart },
+    { path: '/leaderboard', label: 'Leaderboard', icon: Trophy },
     { path: '/messages', label: 'Messages', icon: MessageSquare },
   ];
 
@@ -58,19 +65,24 @@ const Navbar: React.FC = () => {
     <nav className="sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
       <div className="container flex h-16 items-center justify-between">
         {/* Logo */}
-        <Link to={user ? '/dashboard' : '/'} className="flex items-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg gradient-primary">
-            <GraduationCap className="h-5 w-5 text-primary-foreground" />
+        <Link to={user ? '/dashboard' : '/'} className="flex items-center gap-3">
+          <img 
+            src={acetLogo} 
+            alt="ACET Logo" 
+            className="h-10 w-10 object-contain rounded-full border border-primary/20"
+          />
+          <div className="hidden sm:block">
+            <span className="font-display text-lg font-bold text-foreground">
+              AllySphere
+            </span>
+            <p className="text-xs text-muted-foreground">ACET Network</p>
           </div>
-          <span className="hidden font-display text-xl font-bold text-foreground sm:inline-block">
-            Ally Sphere
-          </span>
         </Link>
 
         {user && (
           <>
             {/* Desktop Navigation */}
-            <div className="hidden items-center gap-1 md:flex">
+            <div className="hidden items-center gap-1 lg:flex">
               {navItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = location.pathname === item.path;
@@ -146,7 +158,7 @@ const Navbar: React.FC = () => {
               <Button
                 variant="ghost"
                 size="icon"
-                className="md:hidden"
+                className="lg:hidden"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               >
                 {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -160,7 +172,7 @@ const Navbar: React.FC = () => {
             <Button variant="ghost" onClick={() => navigate('/auth')}>
               Sign In
             </Button>
-            <Button onClick={() => navigate('/auth?mode=signup')}>
+            <Button onClick={() => navigate('/auth?mode=signup')} className="bg-primary hover:bg-primary/90">
               Get Started
             </Button>
           </div>
@@ -169,7 +181,7 @@ const Navbar: React.FC = () => {
 
       {/* Mobile Menu */}
       {user && mobileMenuOpen && (
-        <div className="border-t border-border bg-card md:hidden">
+        <div className="border-t border-border bg-card lg:hidden">
           <div className="container py-4">
             <div className="flex flex-col gap-2">
               {navItems.map((item) => {
