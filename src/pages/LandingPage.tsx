@@ -17,6 +17,7 @@ import {
   Target
 } from 'lucide-react';
 import acetLogo from '@/assets/acet-logo.jpeg';
+import collegeCampus from '@/assets/college-campus.jpg';
 
 const LandingPage: React.FC = () => {
   const features = [
@@ -262,23 +263,12 @@ const LandingPage: React.FC = () => {
               </Button>
             </div>
             <div className="relative">
-              <div className="aspect-square rounded-2xl gradient-hero opacity-10" />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="flex h-24 w-24 items-center justify-center rounded-2xl bg-card shadow-elevated">
-                    <Trophy className="h-12 w-12 text-primary" />
-                  </div>
-                  <div className="flex h-24 w-24 items-center justify-center rounded-2xl bg-card shadow-elevated">
-                    <Target className="h-12 w-12 text-accent" />
-                  </div>
-                  <div className="flex h-24 w-24 items-center justify-center rounded-2xl bg-card shadow-elevated">
-                    <Users className="h-12 w-12 text-success" />
-                  </div>
-                  <div className="flex h-24 w-24 items-center justify-center rounded-2xl bg-card shadow-elevated">
-                    <Heart className="h-12 w-12 text-warning" />
-                  </div>
-                </div>
-              </div>
+              <img 
+                src={collegeCampus} 
+                alt="Anjuman College of Engineering and Technology Campus" 
+                className="aspect-[4/3] w-full rounded-2xl object-cover shadow-elevated"
+              />
+              <div className="absolute inset-0 rounded-2xl bg-gradient-to-t from-primary/20 to-transparent" />
             </div>
           </div>
         </div>
