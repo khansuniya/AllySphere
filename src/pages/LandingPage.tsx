@@ -21,6 +21,7 @@ import collegeCampus from '@/assets/college-campus.jpg';
 import AlumniSearchBar from '@/components/landing/AlumniSearchBar';
 import FeaturedAlumni from '@/components/landing/FeaturedAlumni';
 import FundraisingProgress from '@/components/landing/FundraisingProgress';
+import Footer from '@/components/landing/Footer';
 
 const LandingPage: React.FC = () => {
   const features = [
@@ -335,31 +336,7 @@ const LandingPage: React.FC = () => {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-border py-12 bg-card">
-        <div className="container">
-          <div className="flex flex-col items-center gap-6">
-            <div className="flex items-center gap-4">
-              <img 
-                src={acetLogo} 
-                alt="ACET Logo" 
-                className="h-12 w-12 object-contain rounded-full"
-              />
-              <div>
-                <span className="font-display font-bold text-foreground text-lg">AllySphere</span>
-                <p className="text-sm text-muted-foreground">ACET Alumni Network</p>
-              </div>
-            </div>
-            <div className="text-center">
-              <p className="text-sm text-muted-foreground">
-                Anjuman College of Engineering & Technology, Nagpur
-              </p>
-              <p className="mt-2 text-xs text-muted-foreground">
-                © {new Date().getFullYear()} AllySphere. All rights reserved.
-              </p>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };
