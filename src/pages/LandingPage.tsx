@@ -18,6 +18,9 @@ import {
 } from 'lucide-react';
 import acetLogo from '@/assets/acet-logo.jpeg';
 import collegeCampus from '@/assets/college-campus.jpg';
+import AlumniSearchBar from '@/components/landing/AlumniSearchBar';
+import FeaturedAlumni from '@/components/landing/FeaturedAlumni';
+import FundraisingProgress from '@/components/landing/FundraisingProgress';
 
 const LandingPage: React.FC = () => {
   const features = [
@@ -98,10 +101,10 @@ const LandingPage: React.FC = () => {
         </div>
       </header>
 
-      {/* Hero Section */}
+      {/* Hero Section with Search */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 gradient-hero opacity-5" />
-        <div className="container relative py-20 lg:py-32">
+        <div className="container relative py-16 lg:py-24">
           <div className="mx-auto max-w-4xl text-center">
             <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-sm font-medium text-primary">
               <Sparkles className="h-4 w-4" />
@@ -119,7 +122,13 @@ const LandingPage: React.FC = () => {
               Find the perfect mentor, discover career opportunities, and build 
               your professional network within your college community.
             </p>
-            <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+            
+            {/* Search Bar */}
+            <div className="mt-10">
+              <AlumniSearchBar />
+            </div>
+
+            <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
               <Button asChild size="lg" className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground">
                 <Link to="/auth?mode=signup">
                   Join AllySphere
@@ -134,6 +143,9 @@ const LandingPage: React.FC = () => {
         </div>
       </section>
 
+      {/* Fundraising Progress Bar */}
+      <FundraisingProgress />
+
       {/* Stats Section */}
       <section className="border-y border-border bg-primary/5 py-12">
         <div className="container">
@@ -147,6 +159,9 @@ const LandingPage: React.FC = () => {
           </div>
         </div>
       </section>
+
+      {/* Featured Alumni Section */}
+      <FeaturedAlumni />
 
       {/* Features Section */}
       <section className="py-20">
