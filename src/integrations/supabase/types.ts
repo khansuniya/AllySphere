@@ -455,6 +455,7 @@ export type Database = {
           avatar_url: string | null
           bio: string | null
           created_at: string
+          date_of_birth: string | null
           department: string | null
           email: string
           full_name: string
@@ -469,6 +470,7 @@ export type Database = {
           avatar_url?: string | null
           bio?: string | null
           created_at?: string
+          date_of_birth?: string | null
           department?: string | null
           email: string
           full_name: string
@@ -483,6 +485,7 @@ export type Database = {
           avatar_url?: string | null
           bio?: string | null
           created_at?: string
+          date_of_birth?: string | null
           department?: string | null
           email?: string
           full_name?: string
@@ -523,6 +526,7 @@ export type Database = {
           avatar_url: string | null
           bio: string | null
           created_at: string | null
+          date_of_birth: string | null
           department: string | null
           full_name: string | null
           graduation_year: number | null
@@ -535,6 +539,7 @@ export type Database = {
           avatar_url?: string | null
           bio?: string | null
           created_at?: string | null
+          date_of_birth?: string | null
           department?: string | null
           full_name?: string | null
           graduation_year?: number | null
@@ -547,6 +552,7 @@ export type Database = {
           avatar_url?: string | null
           bio?: string | null
           created_at?: string | null
+          date_of_birth?: string | null
           department?: string | null
           full_name?: string | null
           graduation_year?: number | null
