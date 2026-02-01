@@ -12,9 +12,13 @@ import { Switch } from '@/components/ui/switch';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useToast } from '@/hooks/use-toast';
 import { AlumniDetails } from '@/types/database';
-import { Loader2, Plus, X, Camera } from 'lucide-react';
+import { Loader2, Plus, X, Camera, CalendarIcon } from 'lucide-react';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 const ProfilePage: React.FC = () => {
   const { user, profile, userRole, refreshProfile, loading: authLoading } = useAuth();
@@ -27,6 +31,7 @@ const ProfilePage: React.FC = () => {
   const [graduationYear, setGraduationYear] = useState('');
   const [phone, setPhone] = useState('');
   const [linkedinUrl, setLinkedinUrl] = useState('');
+  const [dateOfBirth, setDateOfBirth] = useState<Date | undefined>(undefined);
   
   // Alumni specific
   const [alumniDetails, setAlumniDetails] = useState<AlumniDetails | null>(null);
@@ -57,6 +62,9 @@ const ProfilePage: React.FC = () => {
       setGraduationYear(profile.graduation_year?.toString() || '');
       setPhone(profile.phone || '');
       setLinkedinUrl(profile.linkedin_url || '');
+      if (profile.date_of_birth) {
+        setDateOfBirth(new Date(profile.date_of_birth));
+      }
     }
   }, [profile]);
 
@@ -109,6 +117,7 @@ const ProfilePage: React.FC = () => {
           graduation_year: graduationYear ? parseInt(graduationYear) : null,
           phone,
           linkedin_url: linkedinUrl,
+          date_of_birth: dateOfBirth ? format(dateOfBirth, 'yyyy-MM-dd') : null,
         })
         .eq('user_id', user.id);
 
@@ -306,6 +315,39 @@ const ProfilePage: React.FC = () => {
                     onChange={(e) => setLinkedinUrl(e.target.value)}
                   />
                 </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Date of Birth</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !dateOfBirth && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {dateOfBirth ? format(dateOfBirth, "PPP") : <span>Pick a date</span>}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={dateOfBirth}
+                      onSelect={setDateOfBirth}
+                      disabled={(date) =>
+                        date > new Date() || date < new Date("1900-01-01")
+                      }
+                      initialFocus
+                      className={cn("p-3 pointer-events-auto")}
+                    />
+                  </PopoverContent>
+                </Popover>
+                <p className="text-xs text-muted-foreground">
+                  Your birthday will be visible to others so they can wish you!
+                </p>
               </div>
             </CardContent>
           </Card>

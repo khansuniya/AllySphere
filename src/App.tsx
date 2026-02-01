@@ -4,10 +4,12 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
+import BirthdayNotification from "@/components/birthday/BirthdayNotification";
 import LandingPage from "./pages/LandingPage";
 import AuthPage from "./pages/AuthPage";
 import Dashboard from "./pages/Dashboard";
 import AlumniDirectory from "./pages/AlumniDirectory";
+import AlumniProfilePage from "./pages/AlumniProfilePage";
 import MentorshipPage from "./pages/MentorshipPage";
 import EventsPage from "./pages/EventsPage";
 import MessagesPage from "./pages/MessagesPage";
@@ -26,11 +28,13 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <BirthdayNotification />
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/auth" element={<AuthPage />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/alumni" element={<AlumniDirectory />} />
+            <Route path="/alumni/:userId" element={<AlumniProfilePage />} />
             <Route path="/mentorship" element={<MentorshipPage />} />
             <Route path="/events" element={<EventsPage />} />
             <Route path="/messages" element={<MessagesPage />} />

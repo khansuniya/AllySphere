@@ -9,13 +9,13 @@ import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Message, Profile } from '@/types/database';
+import { Message, ProfilePublic } from '@/types/database';
 import { Send, MessageSquare } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface Conversation {
   userId: string;
-  profile: Profile;
+  profile: ProfilePublic;
   lastMessage?: Message;
   unreadCount: number;
 }
@@ -141,7 +141,7 @@ const MessagesPage: React.FC = () => {
 
         return {
           userId: partnerId,
-          profile: profile as Profile,
+          profile: profile as ProfilePublic,
           lastMessage: conv.messages[0],
           unreadCount,
         };

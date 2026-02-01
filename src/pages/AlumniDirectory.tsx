@@ -3,14 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { SearchInput } from '@/components/ui/search-input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import AlumniCard from '@/components/alumni/AlumniCard';
+import AlumniFilters from '@/components/alumni/AlumniFilters';
 import { AlumniWithProfile } from '@/types/database';
 import { useToast } from '@/hooks/use-toast';
-import { Filter, Loader2 } from 'lucide-react';
+import { Filter } from 'lucide-react';
 
 const AlumniDirectory: React.FC = () => {
   const { user, loading: authLoading } = useAuth();
@@ -22,7 +21,14 @@ const AlumniDirectory: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [industryFilter, setIndustryFilter] = useState<string>('all');
   const [mentorFilter, setMentorFilter] = useState<string>('all');
+  const [batchFilter, setBatchFilter] = useState<string>('all');
+  const [companyFilter, setCompanyFilter] = useState<string>('all');
+  const [skillFilter, setSkillFilter] = useState<string>('all');
+  
   const [industries, setIndustries] = useState<string[]>([]);
+  const [batches, setBatches] = useState<number[]>([]);
+  const [companies, setCompanies] = useState<string[]>([]);
+  const [skills, setSkills] = useState<string[]>([]);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -38,7 +44,6 @@ const AlumniDirectory: React.FC = () => {
 
   const fetchAlumni = async () => {
     try {
-      // Use profiles_public to avoid exposing sensitive PII (email, phone)
       const { data, error } = await supabase
         .from('alumni_details')
         .select('*, profiles:profiles_public(*)');
@@ -49,9 +54,17 @@ const AlumniDirectory: React.FC = () => {
         const alumniData = data as unknown as AlumniWithProfile[];
         setAlumni(alumniData);
         
-        // Extract unique industries
+        // Extract unique filter options
         const uniqueIndustries = [...new Set(alumniData.map(a => a.industry).filter(Boolean))] as string[];
-        setIndustries(uniqueIndustries);
+        const uniqueBatches = [...new Set(alumniData.map(a => a.profiles?.graduation_year).filter(Boolean))] as number[];
+        const uniqueCompanies = [...new Set(alumniData.map(a => a.current_company).filter(Boolean))] as string[];
+        const allSkills = alumniData.flatMap(a => a.skills || []);
+        const uniqueSkills = [...new Set(allSkills)] as string[];
+        
+        setIndustries(uniqueIndustries.sort());
+        setBatches(uniqueBatches.sort((a, b) => b - a));
+        setCompanies(uniqueCompanies.sort());
+        setSkills(uniqueSkills.sort());
       }
     } catch (error) {
       console.error('Error fetching alumni:', error);
@@ -77,10 +90,30 @@ const AlumniDirectory: React.FC = () => {
       const matchesMentor = mentorFilter === 'all' || 
         (mentorFilter === 'available' && alum.is_mentor_available) ||
         (mentorFilter === 'unavailable' && !alum.is_mentor_available);
+      const matchesBatch = batchFilter === 'all' || alum.profiles?.graduation_year?.toString() === batchFilter;
+      const matchesCompany = companyFilter === 'all' || alum.current_company === companyFilter;
+      const matchesSkill = skillFilter === 'all' || alum.skills?.includes(skillFilter);
 
-      return matchesSearch && matchesIndustry && matchesMentor;
+      return matchesSearch && matchesIndustry && matchesMentor && matchesBatch && matchesCompany && matchesSkill;
     });
-  }, [alumni, searchQuery, industryFilter, mentorFilter]);
+  }, [alumni, searchQuery, industryFilter, mentorFilter, batchFilter, companyFilter, skillFilter]);
+
+  const activeFilterCount = [
+    industryFilter !== 'all',
+    mentorFilter !== 'all',
+    batchFilter !== 'all',
+    companyFilter !== 'all',
+    skillFilter !== 'all',
+  ].filter(Boolean).length;
+
+  const clearAllFilters = () => {
+    setSearchQuery('');
+    setIndustryFilter('all');
+    setMentorFilter('all');
+    setBatchFilter('all');
+    setCompanyFilter('all');
+    setSkillFilter('all');
+  };
 
   const handleConnect = async (alumniUserId: string) => {
     try {
@@ -145,38 +178,27 @@ const AlumniDirectory: React.FC = () => {
         </div>
 
         {/* Filters */}
-        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center">
-          <SearchInput
-            placeholder="Search by name, role, company, or skill..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            containerClassName="flex-1 max-w-md"
+        <div className="mb-8">
+          <AlumniFilters
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            industryFilter={industryFilter}
+            onIndustryChange={setIndustryFilter}
+            industries={industries}
+            mentorFilter={mentorFilter}
+            onMentorChange={setMentorFilter}
+            batchFilter={batchFilter}
+            onBatchChange={setBatchFilter}
+            batches={batches}
+            companyFilter={companyFilter}
+            onCompanyChange={setCompanyFilter}
+            companies={companies}
+            skillFilter={skillFilter}
+            onSkillChange={setSkillFilter}
+            skills={skills}
+            onClearFilters={clearAllFilters}
+            activeFilterCount={activeFilterCount}
           />
-          <div className="flex gap-2">
-            <Select value={industryFilter} onValueChange={setIndustryFilter}>
-              <SelectTrigger className="w-40">
-                <SelectValue placeholder="Industry" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Industries</SelectItem>
-                {industries.map((industry) => (
-                  <SelectItem key={industry} value={industry}>
-                    {industry}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={mentorFilter} onValueChange={setMentorFilter}>
-              <SelectTrigger className="w-40">
-                <SelectValue placeholder="Mentorship" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Alumni</SelectItem>
-                <SelectItem value="available">Mentors Available</SelectItem>
-                <SelectItem value="unavailable">Not Mentoring</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
         </div>
 
         {/* Results */}
@@ -202,11 +224,7 @@ const AlumniDirectory: React.FC = () => {
             <Button 
               variant="outline" 
               className="mt-4"
-              onClick={() => {
-                setSearchQuery('');
-                setIndustryFilter('all');
-                setMentorFilter('all');
-              }}
+              onClick={clearAllFilters}
             >
               Clear Filters
             </Button>

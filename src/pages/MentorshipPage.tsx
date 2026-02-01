@@ -20,7 +20,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
-import { AlumniWithProfile, MentorshipRequest, Profile } from '@/types/database';
+import { AlumniWithProfile, MentorshipRequest, ProfilePublic } from '@/types/database';
 import { 
   GraduationCap, 
   Sparkles, 
@@ -32,8 +32,8 @@ import {
 } from 'lucide-react';
 
 interface MentorshipWithProfiles extends MentorshipRequest {
-  student_profile?: Profile;
-  alumni_profile?: Profile;
+  student_profile?: ProfilePublic;
+  alumni_profile?: ProfilePublic;
 }
 
 const MentorshipPage: React.FC = () => {

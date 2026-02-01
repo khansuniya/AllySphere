@@ -12,6 +12,22 @@ export interface Profile {
   department?: string;
   phone?: string;
   linkedin_url?: string;
+  date_of_birth?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+// Public profile without sensitive PII (email, phone)
+export interface ProfilePublic {
+  id: string;
+  user_id: string;
+  full_name: string;
+  avatar_url?: string;
+  bio?: string;
+  graduation_year?: number;
+  department?: string;
+  linkedin_url?: string;
+  date_of_birth?: string;
   created_at: string;
   updated_at: string;
 }
@@ -88,5 +104,5 @@ export interface Connection {
 }
 
 export interface AlumniWithProfile extends AlumniDetails {
-  profiles: Profile;
+  profiles: ProfilePublic;
 }
