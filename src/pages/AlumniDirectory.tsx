@@ -24,11 +24,14 @@ const AlumniDirectory: React.FC = () => {
   const [batchFilter, setBatchFilter] = useState<string>('all');
   const [companyFilter, setCompanyFilter] = useState<string>('all');
   const [skillFilter, setSkillFilter] = useState<string>('all');
+  const [departmentFilter, setDepartmentFilter] = useState<string>('all');
+  const [experienceFilter, setExperienceFilter] = useState<string>('all');
   
   const [industries, setIndustries] = useState<string[]>([]);
   const [batches, setBatches] = useState<number[]>([]);
   const [companies, setCompanies] = useState<string[]>([]);
   const [skills, setSkills] = useState<string[]>([]);
+  const [departments, setDepartments] = useState<string[]>([]);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -60,11 +63,13 @@ const AlumniDirectory: React.FC = () => {
         const uniqueCompanies = [...new Set(alumniData.map(a => a.current_company).filter(Boolean))] as string[];
         const allSkills = alumniData.flatMap(a => a.skills || []);
         const uniqueSkills = [...new Set(allSkills)] as string[];
+        const uniqueDepartments = [...new Set(alumniData.map(a => a.profiles?.department).filter(Boolean))] as string[];
         
         setIndustries(uniqueIndustries.sort());
         setBatches(uniqueBatches.sort((a, b) => b - a));
         setCompanies(uniqueCompanies.sort());
         setSkills(uniqueSkills.sort());
+        setDepartments(uniqueDepartments.sort());
       }
     } catch (error) {
       console.error('Error fetching alumni:', error);
@@ -93,10 +98,22 @@ const AlumniDirectory: React.FC = () => {
       const matchesBatch = batchFilter === 'all' || alum.profiles?.graduation_year?.toString() === batchFilter;
       const matchesCompany = companyFilter === 'all' || alum.current_company === companyFilter;
       const matchesSkill = skillFilter === 'all' || alum.skills?.includes(skillFilter);
+      const matchesDepartment = departmentFilter === 'all' || alum.profiles?.department === departmentFilter;
+      
+      const matchesExperience = experienceFilter === 'all' || (() => {
+        const exp = alum.years_of_experience || 0;
+        switch (experienceFilter) {
+          case '0-5': return exp >= 0 && exp <= 5;
+          case '5-10': return exp > 5 && exp <= 10;
+          case '10-15': return exp > 10 && exp <= 15;
+          case '15+': return exp > 15;
+          default: return true;
+        }
+      })();
 
-      return matchesSearch && matchesIndustry && matchesMentor && matchesBatch && matchesCompany && matchesSkill;
+      return matchesSearch && matchesIndustry && matchesMentor && matchesBatch && matchesCompany && matchesSkill && matchesDepartment && matchesExperience;
     });
-  }, [alumni, searchQuery, industryFilter, mentorFilter, batchFilter, companyFilter, skillFilter]);
+  }, [alumni, searchQuery, industryFilter, mentorFilter, batchFilter, companyFilter, skillFilter, departmentFilter, experienceFilter]);
 
   const activeFilterCount = [
     industryFilter !== 'all',
@@ -104,6 +121,8 @@ const AlumniDirectory: React.FC = () => {
     batchFilter !== 'all',
     companyFilter !== 'all',
     skillFilter !== 'all',
+    departmentFilter !== 'all',
+    experienceFilter !== 'all',
   ].filter(Boolean).length;
 
   const clearAllFilters = () => {
@@ -113,6 +132,8 @@ const AlumniDirectory: React.FC = () => {
     setBatchFilter('all');
     setCompanyFilter('all');
     setSkillFilter('all');
+    setDepartmentFilter('all');
+    setExperienceFilter('all');
   };
 
   const handleConnect = async (alumniUserId: string) => {
@@ -196,6 +217,11 @@ const AlumniDirectory: React.FC = () => {
             skillFilter={skillFilter}
             onSkillChange={setSkillFilter}
             skills={skills}
+            departmentFilter={departmentFilter}
+            onDepartmentChange={setDepartmentFilter}
+            departments={departments}
+            experienceFilter={experienceFilter}
+            onExperienceChange={setExperienceFilter}
             onClearFilters={clearAllFilters}
             activeFilterCount={activeFilterCount}
           />

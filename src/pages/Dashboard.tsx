@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
+import BirthdayFeed from '@/components/dashboard/BirthdayFeed';
 import { 
   Users, 
   Calendar, 
@@ -280,6 +281,9 @@ const Dashboard: React.FC = () => {
 
           {/* Sidebar */}
           <div className="space-y-6">
+            {/* Birthday Feed */}
+            <BirthdayFeed />
+
             {/* Quick Actions */}
             <Card>
               <CardHeader>

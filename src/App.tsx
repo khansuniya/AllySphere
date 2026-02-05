@@ -17,6 +17,7 @@ import ProfilePage from "./pages/ProfilePage";
 import JobsPage from "./pages/JobsPage";
 import FundraisingPage from "./pages/FundraisingPage";
 import LeaderboardPage from "./pages/LeaderboardPage";
+import SeedDataPage from "./pages/SeedDataPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -42,6 +43,7 @@ const App = () => (
             <Route path="/jobs" element={<JobsPage />} />
             <Route path="/fundraising" element={<FundraisingPage />} />
             <Route path="/leaderboard" element={<LeaderboardPage />} />
+            <Route path="/seed-data" element={<SeedDataPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

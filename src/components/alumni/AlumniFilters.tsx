@@ -22,6 +22,11 @@ interface AlumniFiltersProps {
   skillFilter: string;
   onSkillChange: (value: string) => void;
   skills: string[];
+  departmentFilter: string;
+  onDepartmentChange: (value: string) => void;
+  departments: string[];
+  experienceFilter: string;
+  onExperienceChange: (value: string) => void;
   onClearFilters: () => void;
   activeFilterCount: number;
 }
@@ -43,6 +48,11 @@ const AlumniFilters: React.FC<AlumniFiltersProps> = ({
   skillFilter,
   onSkillChange,
   skills,
+  departmentFilter,
+  onDepartmentChange,
+  departments,
+  experienceFilter,
+  onExperienceChange,
   onClearFilters,
   activeFilterCount,
 }) => {
@@ -129,6 +139,35 @@ const AlumniFilters: React.FC<AlumniFiltersProps> = ({
           </SelectContent>
         </Select>
 
+        {/* Department Filter */}
+        <Select value={departmentFilter} onValueChange={onDepartmentChange}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Department" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Departments</SelectItem>
+            {departments.map((dept) => (
+              <SelectItem key={dept} value={dept}>
+                {dept}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        {/* Experience Filter */}
+        <Select value={experienceFilter} onValueChange={onExperienceChange}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Experience" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Experience</SelectItem>
+            <SelectItem value="0-5">0-5 years</SelectItem>
+            <SelectItem value="5-10">5-10 years</SelectItem>
+            <SelectItem value="10-15">10-15 years</SelectItem>
+            <SelectItem value="15+">15+ years</SelectItem>
+          </SelectContent>
+        </Select>
+
         {/* Mentorship Filter */}
         <Select value={mentorFilter} onValueChange={onMentorChange}>
           <SelectTrigger className="w-[180px]">
@@ -182,6 +221,24 @@ const AlumniFilters: React.FC<AlumniFiltersProps> = ({
               <X 
                 className="h-3 w-3 cursor-pointer hover:text-destructive" 
                 onClick={() => onSkillChange('all')}
+              />
+            </Badge>
+          )}
+          {departmentFilter !== 'all' && (
+            <Badge variant="secondary" className="gap-1">
+              {departmentFilter}
+              <X 
+                className="h-3 w-3 cursor-pointer hover:text-destructive" 
+                onClick={() => onDepartmentChange('all')}
+              />
+            </Badge>
+          )}
+          {experienceFilter !== 'all' && (
+            <Badge variant="secondary" className="gap-1">
+              {experienceFilter} years
+              <X 
+                className="h-3 w-3 cursor-pointer hover:text-destructive" 
+                onClick={() => onExperienceChange('all')}
               />
             </Badge>
           )}
