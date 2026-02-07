@@ -47,23 +47,36 @@ const AlumniDirectory: React.FC = () => {
 
   const fetchAlumni = async () => {
     try {
-      const { data, error } = await supabase
+      // Fetch alumni details and profiles separately since profiles_public is a view
+      const { data: alumniData, error: alumniError } = await supabase
         .from('alumni_details')
-        .select('*, profiles:profiles_public(*)');
+        .select('*');
 
-      if (error) throw error;
+      if (alumniError) throw alumniError;
 
-      if (data) {
-        const alumniData = data as unknown as AlumniWithProfile[];
-        setAlumni(alumniData);
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles_public')
+        .select('*');
+
+      if (profilesError) throw profilesError;
+
+      // Join alumni with their profiles
+      if (alumniData && profilesData) {
+        const profilesMap = new Map(profilesData.map(p => [p.user_id, p]));
+        const combinedData = alumniData.map(alumni => ({
+          ...alumni,
+          profiles: profilesMap.get(alumni.user_id) || null
+        })) as AlumniWithProfile[];
         
-        // Extract unique filter options
-        const uniqueIndustries = [...new Set(alumniData.map(a => a.industry).filter(Boolean))] as string[];
-        const uniqueBatches = [...new Set(alumniData.map(a => a.profiles?.graduation_year).filter(Boolean))] as number[];
-        const uniqueCompanies = [...new Set(alumniData.map(a => a.current_company).filter(Boolean))] as string[];
-        const allSkills = alumniData.flatMap(a => a.skills || []);
+        setAlumni(combinedData);
+        
+        // Extract unique filter options from combined data
+        const uniqueIndustries = [...new Set(combinedData.map(a => a.industry).filter(Boolean))] as string[];
+        const uniqueBatches = [...new Set(combinedData.map(a => a.profiles?.graduation_year).filter(Boolean))] as number[];
+        const uniqueCompanies = [...new Set(combinedData.map(a => a.current_company).filter(Boolean))] as string[];
+        const allSkills = combinedData.flatMap(a => a.skills || []);
         const uniqueSkills = [...new Set(allSkills)] as string[];
-        const uniqueDepartments = [...new Set(alumniData.map(a => a.profiles?.department).filter(Boolean))] as string[];
+        const uniqueDepartments = [...new Set(combinedData.map(a => a.profiles?.department).filter(Boolean))] as string[];
         
         setIndustries(uniqueIndustries.sort());
         setBatches(uniqueBatches.sort((a, b) => b - a));

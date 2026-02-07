@@ -20,6 +20,7 @@ const AlumniCard: React.FC<AlumniCardProps> = ({
   onViewProfile,
 }) => {
   const profile = alumni.profiles;
+  const fullName = profile?.full_name || 'Unknown Alumni';
 
   const getInitials = (name: string) => {
     return name
@@ -35,9 +36,9 @@ const AlumniCard: React.FC<AlumniCardProps> = ({
       <CardContent className="p-6">
         <div className="flex items-start gap-4">
           <Avatar className="h-16 w-16 border-2 border-border">
-            <AvatarImage src={profile.avatar_url} alt={profile.full_name} />
+            <AvatarImage src={profile?.avatar_url || undefined} alt={fullName} />
             <AvatarFallback className="bg-primary/10 text-primary text-lg font-semibold">
-              {getInitials(profile.full_name)}
+              {getInitials(fullName)}
             </AvatarFallback>
           </Avatar>
 
@@ -45,7 +46,7 @@ const AlumniCard: React.FC<AlumniCardProps> = ({
             <div className="flex items-start justify-between gap-2">
               <div>
                 <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">
-                  {profile.full_name}
+                  {fullName}
                 </h3>
                 {alumni.job_title && (
                   <p className="text-sm text-muted-foreground flex items-center gap-1 mt-0.5">
