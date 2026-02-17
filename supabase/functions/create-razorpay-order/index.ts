@@ -79,6 +79,9 @@ serve(async (req) => {
     const RAZORPAY_KEY_ID = Deno.env.get("RAZORPAY_KEY_ID");
     const RAZORPAY_KEY_SECRET = Deno.env.get("RAZORPAY_KEY_SECRET");
 
+    console.log("Razorpay Key ID prefix:", RAZORPAY_KEY_ID?.substring(0, 8));
+    console.log("Razorpay Key Secret length:", RAZORPAY_KEY_SECRET?.length);
+
     if (!RAZORPAY_KEY_ID || !RAZORPAY_KEY_SECRET) {
       throw new Error("Razorpay credentials not configured");
     }
