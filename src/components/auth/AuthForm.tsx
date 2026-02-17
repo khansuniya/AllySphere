@@ -23,15 +23,34 @@ const AuthForm: React.FC = () => {
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [role, setRole] = useState<AppRole>('student');
+  const [branch, setBranch] = useState('');
   const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState<{ email?: string; password?: string; fullName?: string }>({});
+  const [errors, setErrors] = useState<{ email?: string; password?: string; fullName?: string; branch?: string }>({});
 
   const { signIn, signUp } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  const studentAlumniBranches = [
+    'Computer Science',
+    'Artificial Intelligence and Data Science',
+    'Electronics and Telecommunication',
+    'Electrical',
+    'Mechanical',
+    'Civil',
+  ];
+
+  const facultyBranches = [...studentAlumniBranches, 'Other'];
+
+  const branchOptions = role === 'faculty' ? facultyBranches : studentAlumniBranches;
+
+  const handleRoleChange = (v: string) => {
+    setRole(v as AppRole);
+    setBranch('');
+  };
+
   const validateForm = () => {
-    const newErrors: { email?: string; password?: string; fullName?: string } = {};
+    const newErrors: { email?: string; password?: string; fullName?: string; branch?: string } = {};
     
     try {
       emailSchema.parse(email);
@@ -51,6 +70,10 @@ const AuthForm: React.FC = () => {
     
     if (mode === 'signup' && !fullName.trim()) {
       newErrors.fullName = 'Full name is required';
+    }
+
+    if (mode === 'signup' && !branch) {
+      newErrors.branch = 'Branch / Department is required';
     }
     
     setErrors(newErrors);
@@ -83,7 +106,7 @@ const AuthForm: React.FC = () => {
           navigate('/dashboard');
         }
       } else {
-        const { error } = await signUp(email, password, fullName, role);
+        const { error } = await signUp(email, password, fullName, role, branch);
         if (error) {
           if (error.message.includes('already registered')) {
             toast({
@@ -148,7 +171,7 @@ const AuthForm: React.FC = () => {
 
                 <div className="space-y-2">
                   <Label htmlFor="role">I am a</Label>
-                  <Select value={role} onValueChange={(v) => setRole(v as AppRole)}>
+                  <Select value={role} onValueChange={handleRoleChange}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select your role" />
                     </SelectTrigger>
@@ -158,6 +181,23 @@ const AuthForm: React.FC = () => {
                       <SelectItem value="faculty">Faculty Member</SelectItem>
                     </SelectContent>
                   </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="branch">Branch / Department</Label>
+                  <Select value={branch} onValueChange={setBranch}>
+                    <SelectTrigger className={errors.branch ? 'border-destructive' : ''}>
+                      <SelectValue placeholder="Select your branch" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {branchOptions.map((b) => (
+                        <SelectItem key={b} value={b}>{b}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.branch && (
+                    <p className="text-sm text-destructive">{errors.branch}</p>
+                  )}
                 </div>
               </>
             )}
