@@ -352,12 +352,15 @@ export type Database = {
           is_active: boolean
           is_referral: boolean
           job_type: string
+          last_date_to_apply: string | null
           location: string | null
           posted_by: string
           requirements: string | null
           salary_range: string | null
+          skills: string[] | null
           title: string
           updated_at: string
+          work_mode: string
         }
         Insert: {
           apply_url?: string | null
@@ -368,12 +371,15 @@ export type Database = {
           is_active?: boolean
           is_referral?: boolean
           job_type?: string
+          last_date_to_apply?: string | null
           location?: string | null
           posted_by: string
           requirements?: string | null
           salary_range?: string | null
+          skills?: string[] | null
           title: string
           updated_at?: string
+          work_mode?: string
         }
         Update: {
           apply_url?: string | null
@@ -384,12 +390,15 @@ export type Database = {
           is_active?: boolean
           is_referral?: boolean
           job_type?: string
+          last_date_to_apply?: string | null
           location?: string | null
           posted_by?: string
           requirements?: string | null
           salary_range?: string | null
+          skills?: string[] | null
           title?: string
           updated_at?: string
+          work_mode?: string
         }
         Relationships: []
       }
