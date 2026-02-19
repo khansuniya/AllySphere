@@ -29,6 +29,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import acetLogo from '@/assets/acet-logo.jpeg';
+import NotificationBell from '@/components/notifications/NotificationBell';
 
 const Navbar: React.FC = () => {
   const { user, profile, userRole, signOut } = useAuth();
@@ -116,9 +117,7 @@ const Navbar: React.FC = () => {
               </Button>
 
               {/* Notifications */}
-              <Button variant="ghost" size="icon">
-                <Bell className="h-5 w-5" />
-              </Button>
+              <NotificationBell />
 
               {/* Profile Dropdown */}
               <DropdownMenu>
