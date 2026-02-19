@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import BirthdayFeed from '@/components/dashboard/BirthdayFeed';
+import RecommendedMentors from '@/components/dashboard/RecommendedMentors';
 import { 
   Users, 
   Calendar, 
@@ -203,56 +204,61 @@ const Dashboard: React.FC = () => {
         <div className="grid gap-8 lg:grid-cols-3">
           {/* Main Content */}
           <div className="space-y-8 lg:col-span-2">
-            {/* AI Recommendations */}
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Sparkles className="h-5 w-5 text-accent" />
-                  <CardTitle>Recommended Mentors</CardTitle>
-                </div>
-                <Button variant="ghost" size="sm" onClick={() => navigate('/mentorship')}>
-                  View All
-                  <ArrowRight className="ml-1 h-4 w-4" />
-                </Button>
-              </CardHeader>
-              <CardContent>
-                {recommendedAlumni.length > 0 ? (
-                  <div className="space-y-4">
-                    {recommendedAlumni.map((alumni) => (
-                      <div
-                        key={alumni.id}
-                        className="flex items-center gap-4 rounded-lg border border-border p-4 transition-colors hover:bg-muted/50 cursor-pointer"
-                        onClick={() => navigate(`/alumni/${alumni.user_id}`)}
-                      >
-                        <Avatar className="h-12 w-12">
-                          <AvatarImage src={alumni.profiles?.avatar_url} />
-                          <AvatarFallback className="bg-primary/10 text-primary">
-                            {alumni.profiles?.full_name ? getInitials(alumni.profiles.full_name) : 'U'}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1 min-w-0">
-                          <p className="font-medium text-foreground">{alumni.profiles?.full_name}</p>
-                          <p className="text-sm text-muted-foreground truncate">
-                            {alumni.job_title} at {alumni.current_company}
-                          </p>
+            {/* AI Recommendations - Students only */}
+            {userRole === 'student' && <RecommendedMentors />}
+
+            {/* Simple Mentor List - Non-students */}
+            {userRole !== 'student' && (
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="h-5 w-5 text-accent" />
+                    <CardTitle>Available Mentors</CardTitle>
+                  </div>
+                  <Button variant="ghost" size="sm" onClick={() => navigate('/mentorship')}>
+                    View All
+                    <ArrowRight className="ml-1 h-4 w-4" />
+                  </Button>
+                </CardHeader>
+                <CardContent>
+                  {recommendedAlumni.length > 0 ? (
+                    <div className="space-y-4">
+                      {recommendedAlumni.map((alumni) => (
+                        <div
+                          key={alumni.id}
+                          className="flex items-center gap-4 rounded-lg border border-border p-4 transition-colors hover:bg-muted/50 cursor-pointer"
+                          onClick={() => navigate(`/alumni/${alumni.user_id}`)}
+                        >
+                          <Avatar className="h-12 w-12">
+                            <AvatarImage src={alumni.profiles?.avatar_url} />
+                            <AvatarFallback className="bg-primary/10 text-primary">
+                              {alumni.profiles?.full_name ? getInitials(alumni.profiles.full_name) : 'U'}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-foreground">{alumni.profiles?.full_name}</p>
+                            <p className="text-sm text-muted-foreground truncate">
+                              {alumni.job_title} at {alumni.current_company}
+                            </p>
+                          </div>
+                          <Badge variant="secondary" className="shrink-0">
+                            Mentor
+                          </Badge>
                         </div>
-                        <Badge variant="secondary" className="shrink-0">
-                          Mentor
-                        </Badge>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="py-8 text-center">
-                    <GraduationCap className="mx-auto h-12 w-12 text-muted-foreground/50" />
-                    <p className="mt-4 text-muted-foreground">No mentors available yet.</p>
-                    <Button variant="outline" className="mt-4" onClick={() => navigate('/alumni')}>
-                      Browse Alumni
-                    </Button>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="py-8 text-center">
+                      <GraduationCap className="mx-auto h-12 w-12 text-muted-foreground/50" />
+                      <p className="mt-4 text-muted-foreground">No mentors available yet.</p>
+                      <Button variant="outline" className="mt-4" onClick={() => navigate('/alumni')}>
+                        Browse Alumni
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
 
             {/* Upcoming Events */}
             <Card>
