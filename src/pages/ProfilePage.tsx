@@ -12,12 +12,10 @@ import { Switch } from '@/components/ui/switch';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useToast } from '@/hooks/use-toast';
 import { AlumniDetails } from '@/types/database';
-import { Loader2, Plus, X, Camera, CalendarIcon } from 'lucide-react';
-import { format } from 'date-fns';
+import { Loader2, Plus, X, Camera } from 'lucide-react';
+import { format, parse, isValid } from 'date-fns';
 import { cn } from '@/lib/utils';
 
 const ProfilePage: React.FC = () => {
@@ -32,7 +30,8 @@ const ProfilePage: React.FC = () => {
   const [phone, setPhone] = useState('');
   const [linkedinUrl, setLinkedinUrl] = useState('');
   const [dateOfBirth, setDateOfBirth] = useState<Date | undefined>(undefined);
-  
+  const [dobString, setDobString] = useState('');
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
   // Alumni specific
   const [alumniDetails, setAlumniDetails] = useState<AlumniDetails | null>(null);
   const [currentCompany, setCurrentCompany] = useState('');
@@ -63,7 +62,9 @@ const ProfilePage: React.FC = () => {
       setPhone(profile.phone || '');
       setLinkedinUrl(profile.linkedin_url || '');
       if (profile.date_of_birth) {
-        setDateOfBirth(new Date(profile.date_of_birth));
+        const d = new Date(profile.date_of_birth);
+        setDateOfBirth(d);
+        setDobString(format(d, 'dd/MM/yyyy'));
       }
     }
   }, [profile]);
@@ -193,6 +194,66 @@ const ProfilePage: React.FC = () => {
     return name?.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2) || 'U';
   };
 
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+
+    setUploadingAvatar(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const filePath = `${user.id}/avatar.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
+
+      const avatarUrl = `${publicUrl}?t=${Date.now()}`;
+
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ avatar_url: avatarUrl })
+        .eq('user_id', user.id);
+
+      if (updateError) throw updateError;
+
+      await refreshProfile();
+      toast({ title: 'Photo updated', description: 'Your profile photo has been changed.' });
+    } catch (error) {
+      console.error('Error uploading avatar:', error);
+      toast({ title: 'Error', description: 'Failed to upload photo.', variant: 'destructive' });
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
+
+  const handleDobChange = (value: string) => {
+    // Auto-format as DD/MM/YYYY
+    const digits = value.replace(/\D/g, '');
+    let formatted = '';
+    if (digits.length <= 2) formatted = digits;
+    else if (digits.length <= 4) formatted = `${digits.slice(0, 2)}/${digits.slice(2)}`;
+    else formatted = `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4, 8)}`;
+
+    setDobString(formatted);
+
+    if (digits.length === 8) {
+      const parsed = parse(formatted, 'dd/MM/yyyy', new Date());
+      if (isValid(parsed) && parsed <= new Date() && parsed >= new Date('1900-01-01')) {
+        setDateOfBirth(parsed);
+      } else {
+        setDateOfBirth(undefined);
+      }
+    } else {
+      setDateOfBirth(undefined);
+    }
+  };
+
   if (authLoading || loading) {
     return (
       <Layout>
@@ -227,10 +288,25 @@ const ProfilePage: React.FC = () => {
                   <p className="text-sm text-muted-foreground mb-2">
                     Upload a professional photo for your profile
                   </p>
-                  <Button variant="outline" size="sm" disabled>
-                    <Camera className="mr-2 h-4 w-4" />
-                    Change Photo
-                  </Button>
+                  <label htmlFor="avatar-upload">
+                    <Button variant="outline" size="sm" asChild disabled={uploadingAvatar}>
+                      <span>
+                        {uploadingAvatar ? (
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        ) : (
+                          <Camera className="mr-2 h-4 w-4" />
+                        )}
+                        {uploadingAvatar ? 'Uploading...' : 'Change Photo'}
+                      </span>
+                    </Button>
+                  </label>
+                  <input
+                    id="avatar-upload"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleAvatarUpload}
+                  />
                 </div>
               </div>
             </CardContent>
@@ -318,33 +394,14 @@ const ProfilePage: React.FC = () => {
               </div>
 
               <div className="space-y-2">
-                <Label>Date of Birth</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "w-full justify-start text-left font-normal",
-                        !dateOfBirth && "text-muted-foreground"
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {dateOfBirth ? format(dateOfBirth, "PPP") : <span>Pick a date</span>}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={dateOfBirth}
-                      onSelect={setDateOfBirth}
-                      disabled={(date) =>
-                        date > new Date() || date < new Date("1900-01-01")
-                      }
-                      initialFocus
-                      className={cn("p-3 pointer-events-auto")}
-                    />
-                  </PopoverContent>
-                </Popover>
+                <Label htmlFor="dob">Date of Birth</Label>
+                <Input
+                  id="dob"
+                  placeholder="DD/MM/YYYY"
+                  value={dobString}
+                  onChange={(e) => handleDobChange(e.target.value)}
+                  maxLength={10}
+                />
                 <p className="text-xs text-muted-foreground">
                   Your birthday will be visible to others so they can wish you!
                 </p>
