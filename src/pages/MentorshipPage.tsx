@@ -49,6 +49,7 @@ const MentorshipPage: React.FC = () => {
   const [requestMessage, setRequestMessage] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [showAllMentors, setShowAllMentors] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
