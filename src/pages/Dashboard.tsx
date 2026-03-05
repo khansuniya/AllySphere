@@ -10,6 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import BirthdayFeed from '@/components/dashboard/BirthdayFeed';
 import RecommendedMentors from '@/components/dashboard/RecommendedMentors';
+import RecommendedBatchMates from '@/components/dashboard/RecommendedBatchMates';
 import { 
   Users, 
   Calendar, 
