@@ -58,24 +58,31 @@ const Dashboard: React.FC = () => {
         userMentorshipAreas = userAlumniData.mentorship_areas || [];
       }
 
-      // Fetch available mentors
-      const { data: alumniData } = await supabase
-        .from('alumni_details')
-        .select('*, profiles:profiles_public(*)')
-        .eq('is_mentor_available', true)
-        .neq('user_id', user?.id || '');
+      // Fetch batch mates (same graduation year)
+      const { data: userProfile } = await supabase
+        .from('profiles')
+        .select('graduation_year')
+        .eq('user_id', user?.id || '')
+        .maybeSingle();
 
-      if (alumniData) {
-        // Score mentors by matching skills/interests
-        const scored = (alumniData as unknown as AlumniWithProfile[]).map(mentor => {
-          const mentorSkills = mentor.skills || [];
-          const mentorAreas = mentor.mentorship_areas || [];
-          const skillMatch = mentorSkills.filter(s => userSkills.includes(s)).length;
-          const areaMatch = mentorAreas.filter(a => userMentorshipAreas.includes(a)).length;
-          return { mentor, score: skillMatch + areaMatch };
-        });
-        scored.sort((a, b) => b.score - a.score);
-        setRecommendedAlumni(scored.slice(0, 3).map(s => s.mentor));
+      if (userProfile?.graduation_year) {
+        const { data: batchMateProfiles } = await supabase
+          .from('profiles_public')
+          .select('user_id')
+          .eq('graduation_year', userProfile.graduation_year)
+          .neq('user_id', user?.id || '');
+
+        if (batchMateProfiles && batchMateProfiles.length > 0) {
+          const batchUserIds = batchMateProfiles.map(p => p.user_id).filter(Boolean) as string[];
+          const { data: alumniData } = await supabase
+            .from('alumni_details')
+            .select('*, profiles:profiles_public(*)')
+            .in('user_id', batchUserIds);
+
+          if (alumniData) {
+            setRecommendedAlumni((alumniData as unknown as AlumniWithProfile[]).slice(0, 3));
+          }
+        }
       }
 
       // Fetch recent events (past events, most recent first)
