@@ -10,6 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import BirthdayFeed from '@/components/dashboard/BirthdayFeed';
 import RecommendedMentors from '@/components/dashboard/RecommendedMentors';
+import RecommendedBatchMates from '@/components/dashboard/RecommendedBatchMates';
 import { 
   Users, 
   Calendar, 
@@ -19,12 +20,11 @@ import {
   Sparkles,
   GraduationCap
 } from 'lucide-react';
-import { AlumniWithProfile, Event, Announcement } from '@/types/database';
+import { Event, Announcement } from '@/types/database';
 
 const Dashboard: React.FC = () => {
   const { user, profile, userRole, loading: authLoading } = useAuth();
   const navigate = useNavigate();
-  const [recommendedAlumni, setRecommendedAlumni] = useState<AlumniWithProfile[]>([]);
   const [upcomingEvents, setUpcomingEvents] = useState<Event[]>([]);
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [stats, setStats] = useState({ alumni: 0, mentorships: 0, events: 0 });
@@ -44,46 +44,6 @@ const Dashboard: React.FC = () => {
 
   const fetchDashboardData = async () => {
     try {
-      // Fetch current user's skills/interests for matching
-      let userSkills: string[] = [];
-      let userMentorshipAreas: string[] = [];
-      const { data: userAlumniData } = await supabase
-        .from('alumni_details')
-        .select('skills, mentorship_areas')
-        .eq('user_id', user?.id || '')
-        .maybeSingle();
-      
-      if (userAlumniData) {
-        userSkills = userAlumniData.skills || [];
-        userMentorshipAreas = userAlumniData.mentorship_areas || [];
-      }
-
-      // Fetch batch mates (same graduation year)
-      const { data: userProfile } = await supabase
-        .from('profiles')
-        .select('graduation_year')
-        .eq('user_id', user?.id || '')
-        .maybeSingle();
-
-      if (userProfile?.graduation_year) {
-        const { data: batchMateProfiles } = await supabase
-          .from('profiles_public')
-          .select('user_id')
-          .eq('graduation_year', userProfile.graduation_year)
-          .neq('user_id', user?.id || '');
-
-        if (batchMateProfiles && batchMateProfiles.length > 0) {
-          const batchUserIds = batchMateProfiles.map(p => p.user_id).filter(Boolean) as string[];
-          const { data: alumniData } = await supabase
-            .from('alumni_details')
-            .select('*, profiles:profiles_public(*)')
-            .in('user_id', batchUserIds);
-
-          if (alumniData) {
-            setRecommendedAlumni((alumniData as unknown as AlumniWithProfile[]).slice(0, 3));
-          }
-        }
-      }
 
       // Fetch recent events (past events, most recent first)
       const { data: eventsData } = await supabase
@@ -237,58 +197,8 @@ const Dashboard: React.FC = () => {
             {/* AI Recommendations - Students only */}
             {userRole === 'student' && <RecommendedMentors />}
 
-            {/* Simple Mentor List - Non-students */}
-            {userRole !== 'student' && (
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Users className="h-5 w-5 text-accent" />
-                    <CardTitle>Batch Mates</CardTitle>
-                  </div>
-                  <Button variant="ghost" size="sm" onClick={() => navigate('/alumni')}>
-                    View All
-                    <ArrowRight className="ml-1 h-4 w-4" />
-                  </Button>
-                </CardHeader>
-                <CardContent>
-                  {recommendedAlumni.length > 0 ? (
-                    <div className="space-y-4">
-                      {recommendedAlumni.map((alumni) => (
-                        <div
-                          key={alumni.id}
-                          className="flex items-center gap-4 rounded-lg border border-border p-4 transition-colors hover:bg-muted/50 cursor-pointer"
-                          onClick={() => navigate(`/alumni/${alumni.user_id}`)}
-                        >
-                          <Avatar className="h-12 w-12">
-                            <AvatarImage src={alumni.profiles?.avatar_url} />
-                            <AvatarFallback className="bg-primary/10 text-primary">
-                              {alumni.profiles?.full_name ? getInitials(alumni.profiles.full_name) : 'U'}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="flex-1 min-w-0">
-                            <p className="font-medium text-foreground">{alumni.profiles?.full_name}</p>
-                            <p className="text-sm text-muted-foreground truncate">
-                              {alumni.job_title ? `${alumni.job_title} at ${alumni.current_company}` : alumni.profiles?.department || 'Alumni'}
-                            </p>
-                          </div>
-                          <Badge variant="secondary" className="shrink-0">
-                            Batch {alumni.profiles?.graduation_year}
-                          </Badge>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="py-8 text-center">
-                      <Users className="mx-auto h-12 w-12 text-muted-foreground/50" />
-                      <p className="mt-4 text-muted-foreground">No batch mates found yet.</p>
-                      <Button variant="outline" className="mt-4" onClick={() => navigate('/alumni')}>
-                        Browse Alumni
-                      </Button>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            )}
+            {/* AI Batch Mates - Non-students */}
+            {userRole !== 'student' && <RecommendedBatchMates />}
 
             {/* Recent Events */}
             <Card>
