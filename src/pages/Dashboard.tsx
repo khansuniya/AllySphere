@@ -25,7 +25,6 @@ import { AlumniWithProfile, Event, Announcement } from '@/types/database';
 const Dashboard: React.FC = () => {
   const { user, profile, userRole, loading: authLoading } = useAuth();
   const navigate = useNavigate();
-  const [recommendedAlumni, setRecommendedAlumni] = useState<AlumniWithProfile[]>([]);
   const [upcomingEvents, setUpcomingEvents] = useState<Event[]>([]);
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [stats, setStats] = useState({ alumni: 0, mentorships: 0, events: 0 });
@@ -45,46 +44,6 @@ const Dashboard: React.FC = () => {
 
   const fetchDashboardData = async () => {
     try {
-      // Fetch current user's skills/interests for matching
-      let userSkills: string[] = [];
-      let userMentorshipAreas: string[] = [];
-      const { data: userAlumniData } = await supabase
-        .from('alumni_details')
-        .select('skills, mentorship_areas')
-        .eq('user_id', user?.id || '')
-        .maybeSingle();
-      
-      if (userAlumniData) {
-        userSkills = userAlumniData.skills || [];
-        userMentorshipAreas = userAlumniData.mentorship_areas || [];
-      }
-
-      // Fetch batch mates (same graduation year)
-      const { data: userProfile } = await supabase
-        .from('profiles')
-        .select('graduation_year')
-        .eq('user_id', user?.id || '')
-        .maybeSingle();
-
-      if (userProfile?.graduation_year) {
-        const { data: batchMateProfiles } = await supabase
-          .from('profiles_public')
-          .select('user_id')
-          .eq('graduation_year', userProfile.graduation_year)
-          .neq('user_id', user?.id || '');
-
-        if (batchMateProfiles && batchMateProfiles.length > 0) {
-          const batchUserIds = batchMateProfiles.map(p => p.user_id).filter(Boolean) as string[];
-          const { data: alumniData } = await supabase
-            .from('alumni_details')
-            .select('*, profiles:profiles_public(*)')
-            .in('user_id', batchUserIds);
-
-          if (alumniData) {
-            setRecommendedAlumni((alumniData as unknown as AlumniWithProfile[]).slice(0, 3));
-          }
-        }
-      }
 
       // Fetch recent events (past events, most recent first)
       const { data: eventsData } = await supabase
