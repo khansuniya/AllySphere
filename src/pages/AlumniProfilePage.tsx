@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
-import { AlumniWithProfile } from '@/types/database';
+import { ProfilePublic, AlumniDetails } from '@/types/database';
 import { 
   Building2, 
   Briefcase, 
@@ -32,7 +32,8 @@ const AlumniProfilePage: React.FC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   
-  const [alumni, setAlumni] = useState<AlumniWithProfile | null>(null);
+  const [profile, setProfile] = useState<ProfilePublic | null>(null);
+  const [alumniDetails, setAlumniDetails] = useState<AlumniDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [connectionStatus, setConnectionStatus] = useState<string | null>(null);
 
@@ -44,26 +45,40 @@ const AlumniProfilePage: React.FC = () => {
 
   useEffect(() => {
     if (userId && user) {
-      fetchAlumniProfile();
+      fetchProfile();
       checkConnectionStatus();
     }
   }, [userId, user]);
 
-  const fetchAlumniProfile = async () => {
+  const fetchProfile = async () => {
     try {
-      const { data, error } = await supabase
-        .from('alumni_details')
-        .select('*, profiles:profiles_public(*)')
+      // Fetch profile (works for any user)
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles_public')
+        .select('*')
         .eq('user_id', userId)
-        .single();
+        .maybeSingle();
 
-      if (error) throw error;
-      setAlumni(data as unknown as AlumniWithProfile);
+      if (profileError) throw profileError;
+      if (profileData) {
+        setProfile(profileData as unknown as ProfilePublic);
+      }
+
+      // Fetch alumni details if they exist
+      const { data: alumniData } = await supabase
+        .from('alumni_details')
+        .select('*')
+        .eq('user_id', userId!)
+        .maybeSingle();
+
+      if (alumniData) {
+        setAlumniDetails(alumniData as unknown as AlumniDetails);
+      }
     } catch (error) {
       console.error('Error fetching profile:', error);
       toast({
         title: 'Error',
-        description: 'Failed to load alumni profile.',
+        description: 'Failed to load profile.',
         variant: 'destructive',
       });
     } finally {
@@ -97,27 +112,17 @@ const AlumniProfilePage: React.FC = () => {
 
       if (error) {
         if (error.code === '23505') {
-          toast({
-            title: 'Already connected',
-            description: 'You have already sent a connection request.',
-          });
+          toast({ title: 'Already connected', description: 'You have already sent a connection request.' });
         } else {
           throw error;
         }
       } else {
         setConnectionStatus('pending');
-        toast({
-          title: 'Connection request sent',
-          description: 'Your connection request has been sent.',
-        });
+        toast({ title: 'Connection request sent', description: 'Your connection request has been sent.' });
       }
     } catch (error) {
       console.error('Error connecting:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to send connection request.',
-        variant: 'destructive',
-      });
+      toast({ title: 'Error', description: 'Failed to send connection request.', variant: 'destructive' });
     }
   };
 
@@ -159,7 +164,7 @@ const AlumniProfilePage: React.FC = () => {
     );
   }
 
-  if (!alumni) {
+  if (!profile) {
     return (
       <Layout>
         <div className="container py-8">
@@ -173,8 +178,6 @@ const AlumniProfilePage: React.FC = () => {
       </Layout>
     );
   }
-
-  const profile = alumni.profiles;
 
   return (
     <Layout>
@@ -197,7 +200,7 @@ const AlumniProfilePage: React.FC = () => {
                 </Avatar>
 
                 <div className="flex-1">
-                  <div className="flex items-start justify-between">
+                  <div className="flex items-start justify-between flex-wrap gap-2">
                     <div>
                       <h1 className="font-display text-2xl font-bold text-foreground flex items-center gap-2">
                         {profile.full_name}
@@ -208,13 +211,13 @@ const AlumniProfilePage: React.FC = () => {
                           </Badge>
                         )}
                       </h1>
-                      {alumni.job_title && (
+                      {alumniDetails?.job_title && (
                         <p className="text-lg text-muted-foreground mt-1">
-                          {alumni.job_title}
+                          {alumniDetails.job_title}
                         </p>
                       )}
                     </div>
-                    {alumni.is_mentor_available && (
+                    {alumniDetails?.is_mentor_available && (
                       <Badge variant="secondary" className="bg-accent/10 text-accent">
                         Available for Mentorship
                       </Badge>
@@ -222,16 +225,16 @@ const AlumniProfilePage: React.FC = () => {
                   </div>
 
                   <div className="mt-4 flex flex-wrap gap-4 text-sm text-muted-foreground">
-                    {alumni.current_company && (
+                    {alumniDetails?.current_company && (
                       <span className="flex items-center gap-1">
                         <Building2 className="h-4 w-4" />
-                        {alumni.current_company}
+                        {alumniDetails.current_company}
                       </span>
                     )}
-                    {alumni.industry && (
+                    {alumniDetails?.industry && (
                       <span className="flex items-center gap-1">
                         <MapPin className="h-4 w-4" />
-                        {alumni.industry}
+                        {alumniDetails.industry}
                       </span>
                     )}
                     {profile.graduation_year && (
@@ -240,38 +243,47 @@ const AlumniProfilePage: React.FC = () => {
                         Class of {profile.graduation_year}
                       </span>
                     )}
-                    {alumni.years_of_experience > 0 && (
+                    {profile.department && (
+                      <span className="flex items-center gap-1">
+                        <Award className="h-4 w-4" />
+                        {profile.department}
+                      </span>
+                    )}
+                    {alumniDetails && alumniDetails.years_of_experience > 0 && (
                       <span className="flex items-center gap-1">
                         <Briefcase className="h-4 w-4" />
-                        {alumni.years_of_experience} years experience
+                        {alumniDetails.years_of_experience} years experience
                       </span>
                     )}
                   </div>
 
-                  <div className="mt-6 flex gap-3">
-                    {connectionStatus === 'accepted' ? (
-                      <Badge variant="secondary">Connected</Badge>
-                    ) : connectionStatus === 'pending' ? (
-                      <Badge variant="outline">Request Pending</Badge>
-                    ) : (
-                      <Button onClick={handleConnect}>
-                        <UserPlus className="h-4 w-4 mr-2" />
-                        Connect
+                  {/* Actions - hide if viewing own profile */}
+                  {user?.id !== userId && (
+                    <div className="mt-6 flex gap-3 flex-wrap">
+                      {connectionStatus === 'accepted' ? (
+                        <Badge variant="secondary">Connected</Badge>
+                      ) : connectionStatus === 'pending' ? (
+                        <Badge variant="outline">Request Pending</Badge>
+                      ) : (
+                        <Button onClick={handleConnect}>
+                          <UserPlus className="h-4 w-4 mr-2" />
+                          Connect
+                        </Button>
+                      )}
+                      <Button variant="outline" onClick={handleMessage}>
+                        <MessageSquare className="h-4 w-4 mr-2" />
+                        Message
                       </Button>
-                    )}
-                    <Button variant="outline" onClick={handleMessage}>
-                      <MessageSquare className="h-4 w-4 mr-2" />
-                      Message
-                    </Button>
-                    {profile.linkedin_url && (
-                      <Button variant="outline" asChild>
-                        <a href={profile.linkedin_url} target="_blank" rel="noopener noreferrer">
-                          <Linkedin className="h-4 w-4 mr-2" />
-                          LinkedIn
-                        </a>
-                      </Button>
-                    )}
-                  </div>
+                      {profile.linkedin_url && (
+                        <Button variant="outline" asChild>
+                          <a href={profile.linkedin_url} target="_blank" rel="noopener noreferrer">
+                            <Linkedin className="h-4 w-4 mr-2" />
+                            LinkedIn
+                          </a>
+                        </Button>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -284,11 +296,11 @@ const AlumniProfilePage: React.FC = () => {
                 </div>
               )}
 
-              {alumni.skills && alumni.skills.length > 0 && (
-                <div>
+              {alumniDetails?.skills && alumniDetails.skills.length > 0 && (
+                <div className="mb-6">
                   <h3 className="font-semibold text-foreground mb-3">Skills</h3>
                   <div className="flex flex-wrap gap-2">
-                    {alumni.skills.map((skill, index) => (
+                    {alumniDetails.skills.map((skill, index) => (
                       <Badge key={index} variant="outline">
                         {skill}
                       </Badge>
@@ -297,11 +309,11 @@ const AlumniProfilePage: React.FC = () => {
                 </div>
               )}
 
-              {alumni.mentorship_areas && alumni.mentorship_areas.length > 0 && (
-                <div className="mt-6">
+              {alumniDetails?.mentorship_areas && alumniDetails.mentorship_areas.length > 0 && (
+                <div>
                   <h3 className="font-semibold text-foreground mb-3">Mentorship Areas</h3>
                   <div className="flex flex-wrap gap-2">
-                    {alumni.mentorship_areas.map((area, index) => (
+                    {alumniDetails.mentorship_areas.map((area, index) => (
                       <Badge key={index} className="bg-primary/10 text-primary">
                         {area}
                       </Badge>
@@ -343,6 +355,24 @@ const AlumniProfilePage: React.FC = () => {
                     <div>
                       <p className="text-sm text-muted-foreground">Birthday</p>
                       <p className="font-medium">{formatDate(profile.date_of_birth)}</p>
+                    </div>
+                  </div>
+                )}
+                {alumniDetails?.current_company && (
+                  <div className="flex items-center gap-3">
+                    <Building2 className="h-5 w-5 text-muted-foreground" />
+                    <div>
+                      <p className="text-sm text-muted-foreground">Company</p>
+                      <p className="font-medium">{alumniDetails.current_company}</p>
+                    </div>
+                  </div>
+                )}
+                {alumniDetails?.industry && (
+                  <div className="flex items-center gap-3">
+                    <Briefcase className="h-5 w-5 text-muted-foreground" />
+                    <div>
+                      <p className="text-sm text-muted-foreground">Industry</p>
+                      <p className="font-medium">{alumniDetails.industry}</p>
                     </div>
                   </div>
                 )}
