@@ -11,3 +11,6 @@ verify_jwt = false
 
 [functions.seed-alumni]
 verify_jwt = false
+
+[functions.complete-signup]
+verify_jwt = false
