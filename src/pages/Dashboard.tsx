@@ -18,7 +18,8 @@ import {
   TrendingUp,
   ArrowRight,
   Sparkles,
-  GraduationCap
+  GraduationCap,
+  Newspaper
 } from 'lucide-react';
 import { Event, Announcement } from '@/types/database';
 
@@ -272,6 +273,10 @@ const Dashboard: React.FC = () => {
                     {userRole === 'alumni' ? 'Donate' : 'View Donations'}
                   </Button>
                 )}
+                <Button variant="outline" className="justify-start" onClick={() => navigate('/forums')}>
+                  <Newspaper className="mr-2 h-4 w-4" />
+                  Forums
+                </Button>
                 <Button variant="outline" className="justify-start" onClick={() => navigate('/messages')}>
                   <MessageSquare className="mr-2 h-4 w-4" />
                   Messages
