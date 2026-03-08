@@ -152,7 +152,18 @@ const Dashboard: React.FC = () => {
               {userRole === 'alumni' && 'Give back to your community — mentor, donate, and network.'}
               {(userRole === 'faculty' || userRole === 'admin') && 'Manage and oversee the alumni network.'}
             </p>
-        </div>
+
+            {/* Announcements Bar */}
+            {announcements.length > 0 && (
+              <div className="mt-3 flex items-center gap-2 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2">
+                <Sparkles className="h-4 w-4 text-primary shrink-0" />
+                <p className="text-sm text-foreground truncate">
+                  <span className="font-semibold">Announcement:</span>{' '}
+                  {announcements[0].title} — {announcements[0].content}
+                </p>
+              </div>
+            )}
+          </div>
 
         {/* Announcements Banner */}
         {announcements.length > 0 && (
