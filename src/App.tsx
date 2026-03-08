@@ -18,6 +18,8 @@ import ProfilePage from "./pages/ProfilePage";
 import JobsPage from "./pages/JobsPage";
 import FundraisingPage from "./pages/FundraisingPage";
 import LeaderboardPage from "./pages/LeaderboardPage";
+import ForumsPage from "./pages/ForumsPage";
+import ForumDetailPage from "./pages/ForumDetailPage";
 import SeedDataPage from "./pages/SeedDataPage";
 import NotFound from "./pages/NotFound";
 
@@ -44,6 +46,8 @@ const App = () => (
             <Route path="/jobs" element={<ProtectedRoute><JobsPage /></ProtectedRoute>} />
             <Route path="/fundraising" element={<ProtectedRoute allowedRoles={['alumni', 'faculty', 'admin']}><FundraisingPage /></ProtectedRoute>} />
             <Route path="/leaderboard" element={<ProtectedRoute allowedRoles={['alumni', 'faculty', 'admin']}><LeaderboardPage /></ProtectedRoute>} />
+            <Route path="/forums" element={<ProtectedRoute><ForumsPage /></ProtectedRoute>} />
+            <Route path="/forums/:forumId" element={<ProtectedRoute><ForumDetailPage /></ProtectedRoute>} />
             <Route path="/seed-data" element={<ProtectedRoute allowedRoles={['admin']}><SeedDataPage /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>

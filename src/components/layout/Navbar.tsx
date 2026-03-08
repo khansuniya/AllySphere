@@ -25,7 +25,8 @@ import {
   Search,
   Briefcase,
   Heart,
-  Trophy
+  Trophy,
+  MessagesSquare
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import acetLogo from '@/assets/acet-logo.jpeg';
@@ -45,6 +46,7 @@ const Navbar: React.FC = () => {
     { path: '/events', label: 'Events', icon: Calendar, roles: ['student', 'alumni', 'faculty', 'admin'] },
     { path: '/fundraising', label: 'Fundraising', icon: Heart, roles: ['alumni', 'faculty', 'admin'] },
     { path: '/leaderboard', label: 'Leaderboard', icon: Trophy, roles: ['alumni', 'faculty', 'admin'] },
+    { path: '/forums', label: 'Forums', icon: MessagesSquare, roles: ['student', 'alumni', 'faculty', 'admin'] },
     { path: '/messages', label: 'Messages', icon: MessageSquare, roles: ['student', 'alumni', 'faculty', 'admin'] },
   ];
 
