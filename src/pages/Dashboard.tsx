@@ -19,6 +19,7 @@ import {
   ArrowRight,
   Sparkles,
   GraduationCap
+  Newspaper
 } from 'lucide-react';
 import { Event, Announcement } from '@/types/database';
 
