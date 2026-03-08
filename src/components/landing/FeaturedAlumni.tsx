@@ -14,40 +14,46 @@ const FeaturedAlumni: React.FC = () => {
     queryFn: async () => {
       const { data: contributions, error } = await supabase
         .from('alumni_contributions')
-        .select('*, profiles!inner(full_name, avatar_url, graduation_year, department, user_id)')
+        .select('*')
         .order('mentorships_completed', { ascending: false })
-        .limit(4);
+        .limit(8);
 
       if (error) throw error;
 
-      // Also fetch alumni_details for job info
       const userIds = (contributions || []).map((c: any) => c.user_id);
       if (userIds.length === 0) return [];
 
-      const { data: details } = await supabase
-        .from('alumni_details')
-        .select('user_id, job_title, current_company, skills')
-        .in('user_id', userIds);
+      const [{ data: profiles }, { data: details }] = await Promise.all([
+        supabase.from('profiles').select('user_id, full_name, avatar_url, graduation_year, department').in('user_id', userIds),
+        supabase.from('alumni_details').select('user_id, job_title, current_company, skills').in('user_id', userIds),
+      ]);
 
+      const profilesMap = new Map((profiles || []).map((p: any) => [p.user_id, p]));
       const detailsMap = new Map((details || []).map((d: any) => [d.user_id, d]));
 
-      return (contributions || []).map((c: any) => {
-        const d = detailsMap.get(c.user_id);
-        const score = (c.mentorships_completed * 10) + (c.referrals_made * 5) + (c.jobs_posted * 5) + (c.events_hosted * 8) + Number(c.total_donations) / 100;
-        return {
-          id: c.user_id,
-          name: c.profiles.full_name,
-          avatar: c.profiles.avatar_url,
-          batch: c.profiles.graduation_year,
-          jobTitle: d?.job_title || 'Alumni',
-          company: d?.current_company || '',
-          skills: d?.skills?.slice(0, 2) || [],
-          score,
-          mentorships: c.mentorships_completed,
-          jobsPosted: c.jobs_posted,
-          referrals: c.referrals_made,
-        };
-      }).sort((a: any, b: any) => b.score - a.score);
+      return (contributions || [])
+        .map((c: any) => {
+          const p = profilesMap.get(c.user_id);
+          const d = detailsMap.get(c.user_id);
+          if (!p) return null;
+          const score = (c.mentorships_completed * 10) + (c.referrals_made * 5) + (c.jobs_posted * 5) + (c.events_hosted * 8) + Number(c.total_donations) / 100;
+          return {
+            id: c.user_id,
+            name: p.full_name,
+            avatar: p.avatar_url,
+            batch: p.graduation_year,
+            jobTitle: d?.job_title || 'Alumni',
+            company: d?.current_company || '',
+            skills: d?.skills?.slice(0, 2) || [],
+            score,
+            mentorships: c.mentorships_completed,
+            jobsPosted: c.jobs_posted,
+            referrals: c.referrals_made,
+          };
+        })
+        .filter(Boolean)
+        .sort((a: any, b: any) => b.score - a.score)
+        .slice(0, 4);
     },
   });
 
