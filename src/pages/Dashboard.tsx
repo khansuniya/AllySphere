@@ -152,34 +152,19 @@ const Dashboard: React.FC = () => {
               {userRole === 'alumni' && 'Give back to your community — mentor, donate, and network.'}
               {(userRole === 'faculty' || userRole === 'admin') && 'Manage and oversee the alumni network.'}
             </p>
-        </div>
 
-        {/* Announcements Banner */}
-        {announcements.length > 0 && (
-          <div className="mb-6 space-y-2">
-            {announcements.map((announcement) => (
-              <div
-                key={announcement.id}
-                className="relative overflow-hidden rounded-xl border border-primary/20 bg-gradient-to-r from-primary/5 via-primary/10 to-accent/5 p-5"
-              >
-                <div className="flex items-start gap-4">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10">
-                    <Sparkles className="h-5 w-5 text-primary" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="font-semibold text-foreground">{announcement.title}</p>
-                    <p className="mt-1 text-sm text-muted-foreground leading-relaxed">
-                      {announcement.content}
-                    </p>
-                    <p className="mt-2 text-xs text-muted-foreground/70">
-                      {new Date(announcement.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
-                    </p>
-                  </div>
-                </div>
+            {/* Announcements Bar */}
+            {announcements.length > 0 && (
+              <div className="mt-3 flex items-center gap-2 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2">
+                <Sparkles className="h-4 w-4 text-primary shrink-0" />
+                <p className="text-sm text-foreground truncate">
+                  <span className="font-semibold">Announcement:</span>{' '}
+                  {announcements[0].title} — {announcements[0].content}
+                </p>
               </div>
-            ))}
+            )}
           </div>
-        )}
+
         </div>
 
         {/* Stats Cards */}
