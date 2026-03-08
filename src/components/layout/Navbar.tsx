@@ -80,8 +80,9 @@ const Navbar: React.FC = () => {
 
         {user && (
           <>
-            {/* Desktop Navigation */}
-            <div className="hidden items-center gap-1 lg:flex">
+            {/* Right Side */}
+            <div className="flex items-center gap-2">
+              {/* Dashboard Button */}
               {navItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = location.pathname === item.path;
@@ -101,10 +102,7 @@ const Navbar: React.FC = () => {
                   </Link>
                 );
               })}
-            </div>
 
-            {/* Right Side */}
-            <div className="flex items-center gap-2">
               {/* Search Button */}
               <Button variant="ghost" size="icon" className="hidden sm:flex" onClick={() => navigate('/alumni')}>
                 <Search className="h-5 w-5" />
