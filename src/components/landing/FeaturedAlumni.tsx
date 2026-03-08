@@ -12,43 +12,36 @@ const FeaturedAlumni: React.FC = () => {
   const { data: featured = [], isLoading } = useQuery({
     queryKey: ['featured-alumni-landing'],
     queryFn: async () => {
-      // Get alumni user_ids
-      const { data: roles } = await supabase
-        .from('user_roles')
-        .select('user_id')
-        .eq('role', 'alumni')
+      // Fetch alumni_details (public via RLS) to find active alumni
+      const { data: details, error } = await supabase
+        .from('alumni_details')
+        .select('user_id, job_title, current_company, skills, years_of_experience, is_mentor_available, mentorship_areas')
         .limit(50);
 
-      const userIds = (roles || []).map((r: any) => r.user_id);
-      if (userIds.length === 0) return [];
+      if (error) throw error;
+      if (!details || details.length === 0) return [];
 
-      // Fetch profiles, details, and contributions in parallel
-      const [{ data: profiles }, { data: details }, { data: contributions }] = await Promise.all([
-        supabase.from('profiles').select('user_id, full_name, avatar_url, graduation_year, department').in('user_id', userIds),
-        supabase.from('alumni_details').select('user_id, job_title, current_company, skills, years_of_experience, is_mentor_available, mentorship_areas').in('user_id', userIds),
-        supabase.from('alumni_contributions').select('*').in('user_id', userIds),
-      ]);
+      const userIds = details.map((d: any) => d.user_id);
 
-      const detailsMap = new Map((details || []).map((d: any) => [d.user_id, d]));
-      const contribMap = new Map((contributions || []).map((c: any) => [c.user_id, c]));
+      // Fetch public profiles
+      const { data: profiles } = await supabase
+        .from('profiles_public')
+        .select('user_id, full_name, avatar_url, graduation_year, department')
+        .in('user_id', userIds);
 
-      return (profiles || [])
-        .map((p: any) => {
-          const d = detailsMap.get(p.user_id);
-          const c = contribMap.get(p.user_id);
-          // Activity score: profile completeness + contributions + experience
+      const profilesMap = new Map((profiles || []).map((p: any) => [p.user_id, p]));
+
+      return details
+        .map((d: any) => {
+          const p = profilesMap.get(d.user_id);
+          if (!p) return null;
           let score = 0;
-          if (d) {
-            score += (d.skills?.length || 0) * 2;
-            score += (d.years_of_experience || 0) * 3;
-            score += d.is_mentor_available ? 15 : 0;
-            score += (d.mentorship_areas?.length || 0) * 3;
-            score += d.job_title ? 5 : 0;
-            score += d.current_company ? 5 : 0;
-          }
-          if (c) {
-            score += (c.mentorships_completed * 10) + (c.referrals_made * 5) + (c.jobs_posted * 5) + (c.events_hosted * 8) + Number(c.total_donations) / 100;
-          }
+          score += (d.skills?.length || 0) * 2;
+          score += (d.years_of_experience || 0) * 3;
+          score += d.is_mentor_available ? 15 : 0;
+          score += (d.mentorship_areas?.length || 0) * 3;
+          score += d.job_title ? 5 : 0;
+          score += d.current_company ? 5 : 0;
           if (p.avatar_url) score += 5;
           if (p.graduation_year) score += 3;
 
@@ -57,14 +50,15 @@ const FeaturedAlumni: React.FC = () => {
             name: p.full_name,
             avatar: p.avatar_url,
             batch: p.graduation_year,
-            jobTitle: d?.job_title || 'Alumni',
-            company: d?.current_company || '',
-            skills: d?.skills?.slice(0, 2) || [],
+            jobTitle: d.job_title || 'Alumni',
+            company: d.current_company || '',
+            skills: d.skills?.slice(0, 2) || [],
             score,
-            mentorAvailable: d?.is_mentor_available || false,
-            yearsExp: d?.years_of_experience || 0,
+            mentorAvailable: d.is_mentor_available || false,
+            yearsExp: d.years_of_experience || 0,
           };
         })
+        .filter(Boolean)
         .sort((a: any, b: any) => b.score - a.score)
         .slice(0, 4);
     },
