@@ -102,6 +102,18 @@ const LandingPage: React.FC = () => {
         </div>
       </header>
 
+      {/* Announcement Bar */}
+      <section className="border-b border-border bg-primary/5 py-3">
+        <div className="container">
+          <div className="flex items-center justify-center gap-2 text-sm">
+            <Sparkles className="h-4 w-4 text-primary" />
+            <span className="text-foreground font-medium">
+              A smarter way to connect with your alumni network. AllySphere launching soon.
+            </span>
+          </div>
+        </div>
+      </section>
+
       {/* Hero Section with Search */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 gradient-hero opacity-5" />
