@@ -26,7 +26,7 @@ import {
   Briefcase,
   Heart,
   Trophy,
-  MessagesSquare
+  MessagesSquare as ForumIcon
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import acetLogo from '@/assets/acet-logo.jpeg';
