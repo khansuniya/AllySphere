@@ -315,31 +315,6 @@ const Dashboard: React.FC = () => {
               </CardContent>
             </Card>
 
-            {/* Announcements */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Announcements</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {announcements.length > 0 ? (
-                  <div className="space-y-4">
-                    {announcements.map((announcement) => (
-                      <div key={announcement.id} className="border-b border-border pb-4 last:border-0 last:pb-0">
-                        <p className="font-medium text-foreground">{announcement.title}</p>
-                        <p className="mt-1 text-sm text-muted-foreground line-clamp-2">
-                          {announcement.content}
-                        </p>
-                        <p className="mt-2 text-xs text-muted-foreground">
-                          {new Date(announcement.created_at).toLocaleDateString()}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-sm text-muted-foreground">No announcements yet.</p>
-                )}
-              </CardContent>
-            </Card>
           </div>
         </div>
       </div>
