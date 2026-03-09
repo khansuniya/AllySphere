@@ -106,57 +106,6 @@ const Navbar: React.FC = () => {
                 );
               })}
 
-              {/* Quick Actions 3-dot menu */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon">
-                    <MoreVertical className="h-5 w-5" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-52" align="end">
-                  <DropdownMenuLabel>Quick Actions</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => navigate('/alumni')}>
-                    <Users className="mr-2 h-4 w-4" />
-                    Find Alumni
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate('/mentorship')}>
-                    <GraduationCap className="mr-2 h-4 w-4" />
-                    {userRole === 'student' ? 'Request Mentorship' : 'Mentorship'}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate('/jobs')}>
-                    <Briefcase className="mr-2 h-4 w-4" />
-                    {userRole === 'alumni' ? 'Post a Job' : 'Browse Jobs'}
-                  </DropdownMenuItem>
-                  {(userRole === 'alumni' || userRole === 'faculty' || userRole === 'admin') && (
-                    <DropdownMenuItem onClick={() => navigate('/fundraising')}>
-                      <Heart className="mr-2 h-4 w-4" />
-                      {userRole === 'alumni' ? 'Donate' : 'View Donations'}
-                    </DropdownMenuItem>
-                  )}
-                  <DropdownMenuItem onClick={() => navigate('/events')}>
-                    <Calendar className="mr-2 h-4 w-4" />
-                    Events
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate('/forums')}>
-                    <Newspaper className="mr-2 h-4 w-4" />
-                    Forums
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate('/messages')}>
-                    <MessageSquare className="mr-2 h-4 w-4" />
-                    Messages
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate('/leaderboard')}>
-                    <Trophy className="mr-2 h-4 w-4" />
-                    Leaderboard
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => navigate('/profile')}>
-                    <Settings className="mr-2 h-4 w-4" />
-                    Update Profile
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
 
               {/* Notifications */}
               <NotificationBell />
@@ -199,11 +148,10 @@ const Navbar: React.FC = () => {
                 </DropdownMenuContent>
               </DropdownMenu>
 
-              {/* Mobile Menu Toggle */}
+              {/* Menu Toggle */}
               <Button
                 variant="ghost"
                 size="icon"
-                className="lg:hidden"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               >
                 {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -224,11 +172,11 @@ const Navbar: React.FC = () => {
         )}
       </div>
 
-      {/* Mobile Menu */}
+      {/* Slide-down Menu with all quick actions */}
       {user && mobileMenuOpen && (
-        <div className="border-t border-border bg-card lg:hidden">
+        <div className="border-t border-border bg-card">
           <div className="container py-4">
-            <div className="flex flex-col gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {navItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = location.pathname === item.path;
@@ -249,6 +197,40 @@ const Navbar: React.FC = () => {
                   </Link>
                 );
               })}
+              <Link to="/alumni" onClick={() => setMobileMenuOpen(false)} className={cn('flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-colors', location.pathname === '/alumni' ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-muted hover:text-foreground')}>
+                <Users className="h-5 w-5" />
+                Find Alumni
+              </Link>
+              <Link to="/mentorship" onClick={() => setMobileMenuOpen(false)} className={cn('flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-colors', location.pathname === '/mentorship' ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-muted hover:text-foreground')}>
+                <GraduationCap className="h-5 w-5" />
+                Mentorship
+              </Link>
+              <Link to="/jobs" onClick={() => setMobileMenuOpen(false)} className={cn('flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-colors', location.pathname === '/jobs' ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-muted hover:text-foreground')}>
+                <Briefcase className="h-5 w-5" />
+                Jobs
+              </Link>
+              <Link to="/events" onClick={() => setMobileMenuOpen(false)} className={cn('flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-colors', location.pathname === '/events' ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-muted hover:text-foreground')}>
+                <Calendar className="h-5 w-5" />
+                Events
+              </Link>
+              <Link to="/forums" onClick={() => setMobileMenuOpen(false)} className={cn('flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-colors', location.pathname === '/forums' ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-muted hover:text-foreground')}>
+                <Newspaper className="h-5 w-5" />
+                Forums
+              </Link>
+              <Link to="/messages" onClick={() => setMobileMenuOpen(false)} className={cn('flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-colors', location.pathname === '/messages' ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-muted hover:text-foreground')}>
+                <MessageSquare className="h-5 w-5" />
+                Messages
+              </Link>
+              {(userRole === 'alumni' || userRole === 'faculty' || userRole === 'admin') && (
+                <Link to="/fundraising" onClick={() => setMobileMenuOpen(false)} className={cn('flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-colors', location.pathname === '/fundraising' ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-muted hover:text-foreground')}>
+                  <Heart className="h-5 w-5" />
+                  Fundraising
+                </Link>
+              )}
+              <Link to="/leaderboard" onClick={() => setMobileMenuOpen(false)} className={cn('flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-colors', location.pathname === '/leaderboard' ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-muted hover:text-foreground')}>
+                <Trophy className="h-5 w-5" />
+                Leaderboard
+              </Link>
             </div>
           </div>
         </div>
