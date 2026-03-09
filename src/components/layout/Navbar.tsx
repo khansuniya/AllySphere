@@ -106,57 +106,6 @@ const Navbar: React.FC = () => {
                 );
               })}
 
-              {/* Quick Actions 3-dot menu */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon">
-                    <MoreVertical className="h-5 w-5" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-52" align="end">
-                  <DropdownMenuLabel>Quick Actions</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => navigate('/alumni')}>
-                    <Users className="mr-2 h-4 w-4" />
-                    Find Alumni
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate('/mentorship')}>
-                    <GraduationCap className="mr-2 h-4 w-4" />
-                    {userRole === 'student' ? 'Request Mentorship' : 'Mentorship'}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate('/jobs')}>
-                    <Briefcase className="mr-2 h-4 w-4" />
-                    {userRole === 'alumni' ? 'Post a Job' : 'Browse Jobs'}
-                  </DropdownMenuItem>
-                  {(userRole === 'alumni' || userRole === 'faculty' || userRole === 'admin') && (
-                    <DropdownMenuItem onClick={() => navigate('/fundraising')}>
-                      <Heart className="mr-2 h-4 w-4" />
-                      {userRole === 'alumni' ? 'Donate' : 'View Donations'}
-                    </DropdownMenuItem>
-                  )}
-                  <DropdownMenuItem onClick={() => navigate('/events')}>
-                    <Calendar className="mr-2 h-4 w-4" />
-                    Events
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate('/forums')}>
-                    <Newspaper className="mr-2 h-4 w-4" />
-                    Forums
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate('/messages')}>
-                    <MessageSquare className="mr-2 h-4 w-4" />
-                    Messages
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate('/leaderboard')}>
-                    <Trophy className="mr-2 h-4 w-4" />
-                    Leaderboard
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => navigate('/profile')}>
-                    <Settings className="mr-2 h-4 w-4" />
-                    Update Profile
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
 
               {/* Notifications */}
               <NotificationBell />
