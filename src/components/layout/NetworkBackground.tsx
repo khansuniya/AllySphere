@@ -276,7 +276,8 @@ const NetworkBackground: React.FC = () => {
   return (
     <canvas
       ref={canvasRef}
-      className="pointer-events-none fixed inset-0 z-0"
+      className="pointer-events-none fixed inset-0"
+      style={{ zIndex: 1 }}
       aria-hidden="true"
     />
   );
