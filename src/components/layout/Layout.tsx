@@ -13,7 +13,7 @@ const Layout: React.FC<LayoutProps> = ({ children, showNavbar = true }) => {
   const { user } = useAuth();
 
   return (
-    <div className="min-h-screen bg-background flex flex-col relative">
+    <div className="min-h-screen flex flex-col relative" style={{ background: 'hsl(var(--background))' }}>
       <NetworkBackground />
       {showNavbar && <Navbar />}
       <main className="flex-1 relative z-10">{children}</main>
