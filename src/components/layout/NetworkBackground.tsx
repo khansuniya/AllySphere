@@ -206,7 +206,7 @@ const NetworkBackground: React.FC = () => {
         const dist = Math.sqrt(dx * dx + dy * dy);
         const maxDist = 280;
         if (dist < maxDist) {
-          const alpha = (1 - dist / maxDist) * 0.12;
+          const alpha = (1 - dist / maxDist) * 0.25;
           ctx.strokeStyle = `hsla(205, 35%, 75%, ${alpha})`;
           ctx.beginPath();
           ctx.moveTo(nodes[i].x, nodes[i].y);
