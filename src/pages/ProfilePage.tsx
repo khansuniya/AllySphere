@@ -25,15 +25,14 @@ const ProfilePage = () => {
   const [dateOfBirth, setDateOfBirth] = useState();
   const [dobString, setDobString] = useState('');
   const [saving, setSaving] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState('');
 
-  // 🔥 Redirect if not logged in
   useEffect(() => {
     if (!authLoading && !user) {
       navigate('/auth');
     }
   }, [user, authLoading, navigate]);
 
-  // 🔥 FETCH PROFILE
   const fetchProfile = async () => {
     if (!user) return;
 
@@ -55,6 +54,7 @@ const ProfilePage = () => {
       setGraduationYear(data.graduation_year?.toString() || '');
       setPhone(data.phone || '');
       setLinkedinUrl(data.linkedin_url || '');
+      setAvatarUrl(data.avatar_url || '');
 
       if (data.date_of_birth) {
         const d = new Date(data.date_of_birth);
@@ -68,7 +68,43 @@ const ProfilePage = () => {
     fetchProfile();
   }, [user]);
 
-  // 🔥 SAVE PROFILE (FINAL FIXED)
+  const handleUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file || !user) return;
+
+    const fileName = `${user.id}-${Date.now()}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('avatars')
+      .upload(fileName, file, { upsert: true });
+
+    if (uploadError) {
+      console.error(uploadError);
+      toast({
+        title: 'Upload failed',
+        description: uploadError.message,
+      });
+      return;
+    }
+
+    const { data } = supabase.storage
+      .from('avatars')
+      .getPublicUrl(fileName);
+
+    const imageUrl = data.publicUrl;
+
+    await supabase
+      .from('profiles')
+      .update({ avatar_url: imageUrl })
+      .eq('user_id', user.id);
+
+    setAvatarUrl(imageUrl);
+
+    toast({
+      title: 'Photo uploaded!',
+    });
+  };
+
   const handleSave = async () => {
     if (!user) return;
 
@@ -79,7 +115,7 @@ const ProfilePage = () => {
         .upsert(
           {
             user_id: user.id,
-            email: user.email, // required
+            email: user.email,
             full_name: fullName,
             bio,
             department,
@@ -91,9 +127,10 @@ const ProfilePage = () => {
             date_of_birth: dateOfBirth
               ? format(dateOfBirth, 'yyyy-MM-dd')
               : null,
+            avatar_url: avatarUrl,
           },
           {
-            onConflict: 'user_id', // 🔥 MAIN FIX
+            onConflict: 'user_id',
           }
         );
 
@@ -116,7 +153,6 @@ const ProfilePage = () => {
     }
   };
 
-  // 🔥 DOB FORMAT HANDLER
   const handleDobChange = (value) => {
     const digits = value.replace(/\D/g, '');
     let formatted = '';
@@ -125,10 +161,7 @@ const ProfilePage = () => {
     else if (digits.length <= 4)
       formatted = `${digits.slice(0, 2)}/${digits.slice(2)}`;
     else
-      formatted = `${digits.slice(0, 2)}/${digits.slice(
-        2,
-        4
-      )}/${digits.slice(4, 8)}`;
+      formatted = `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4, 8)}`;
 
     setDobString(formatted);
 
@@ -151,6 +184,15 @@ const ProfilePage = () => {
           </CardHeader>
 
           <CardContent className="space-y-4">
+
+            <div className="flex flex-col items-center gap-3">
+              <img
+                src={avatarUrl || "https://via.placeholder.com/100"}
+                className="w-24 h-24 rounded-full object-cover"
+              />
+              <input type="file" onChange={handleUpload} />
+            </div>
+
             <Input
               placeholder="Full Name"
               value={fullName}
@@ -198,6 +240,7 @@ const ProfilePage = () => {
             <Button onClick={handleSave} disabled={saving}>
               {saving ? <Loader2 className="animate-spin" /> : 'Save'}
             </Button>
+
           </CardContent>
         </Card>
       </div>

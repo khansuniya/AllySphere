@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,9 +8,9 @@ import { useToast } from '@/hooks/use-toast';
 import { GraduationCap, Loader2 } from 'lucide-react';
 import { z } from 'zod';
 import SignupFlow from './SignupFlow';
+import { supabase } from '@/integrations/supabase/client';
 
 const emailSchema = z.string().email('Please enter a valid email address');
-const passwordSchema = z.string().min(6, 'Password must be at least 6 characters');
 
 const AuthForm: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -19,43 +18,76 @@ const AuthForm: React.FC = () => {
 
   const [mode, setMode] = useState<'signin' | 'signup'>(initialMode);
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [otp, setOtp] = useState('');
+  const [step, setStep] = useState<'email' | 'otp'>('email');
   const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [error, setError] = useState('');
 
-  const { signIn } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const validateSignin = () => {
-    const newErrors: { email?: string; password?: string } = {};
-    try { emailSchema.parse(email); } catch (e) {
-      if (e instanceof z.ZodError) newErrors.email = e.errors[0].message;
-    }
-    try { passwordSchema.parse(password); } catch (e) {
-      if (e instanceof z.ZodError) newErrors.password = e.errors[0].message;
-    }
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSignin = async (e: React.FormEvent) => {
+  // 🔹 SEND OTP
+  const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validateSignin()) return;
-    setLoading(true);
+
     try {
-      const { error } = await signIn(email, password);
+      emailSchema.parse(email);
+    } catch {
+      setError('Enter valid email');
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+      });
+
       if (error) {
         toast({
-          title: 'Sign in failed',
-          description: error.message === 'Invalid login credentials'
-            ? 'Invalid email or password. Please try again.'
-            : error.message,
+          title: 'Error',
+          description: error.message,
           variant: 'destructive',
         });
       } else {
-        toast({ title: 'Welcome back!', description: 'You have successfully signed in.' });
-        navigate('/dashboard');
+        toast({
+          title: 'OTP Sent!',
+          description: 'Check your email',
+        });
+        setStep('otp'); // 👉 switch to OTP screen
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 🔹 VERIFY OTP
+  const handleVerifyOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    setLoading(true);
+
+    try {
+      const { error } = await supabase.auth.verifyOtp({
+        email,
+        token: otp,
+        type: 'email',
+      });
+
+      if (error) {
+        toast({
+          title: 'Invalid OTP',
+          description: error.message,
+          variant: 'destructive',
+        });
+      } else {
+        toast({
+          title: 'Login successful!',
+        });
+
+        navigate('/dashboard'); // 👉 change if needed
       }
     } finally {
       setLoading(false);
@@ -69,53 +101,73 @@ const AuthForm: React.FC = () => {
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl gradient-primary">
             <GraduationCap className="h-8 w-8 text-primary-foreground" />
           </div>
-          <CardTitle className="font-display text-2xl">
-            {mode === 'signin' ? 'Welcome Back' : 'Join Ally Sphere'}
+          <CardTitle className="text-2xl">
+            {step === 'email' ? 'Login with OTP' : 'Enter OTP'}
           </CardTitle>
           <CardDescription>
-            {mode === 'signin'
-              ? 'Sign in to connect with your alumni network'
-              : 'Create your account with email verification'}
+            {step === 'email'
+              ? 'Enter your email to receive OTP'
+              : 'Enter the OTP sent to your email'}
           </CardDescription>
         </CardHeader>
+
         <CardContent>
           {mode === 'signup' ? (
             <SignupFlow onSwitchToSignin={() => setMode('signin')} />
           ) : (
             <>
-              <form onSubmit={handleSignin} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="you@example.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className={errors.email ? 'border-destructive' : ''}
-                  />
-                  {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className={errors.password ? 'border-destructive' : ''}
-                  />
-                  {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
-                </div>
-                <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Signing In...</> : 'Sign In'}
-                </Button>
-              </form>
+              {step === 'email' && (
+                <form onSubmit={handleSendOtp} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Email</Label>
+                    <Input
+                      type="email"
+                      placeholder="you@example.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                    />
+                    {error && <p className="text-sm text-destructive">{error}</p>}
+                  </div>
+
+                  <Button type="submit" className="w-full" disabled={loading}>
+                    {loading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Sending OTP...
+                      </>
+                    ) : (
+                      'Send OTP'
+                    )}
+                  </Button>
+                </form>
+              )}
+
+              {step === 'otp' && (
+                <form onSubmit={handleVerifyOtp} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Enter OTP</Label>
+                    <Input
+                      type="text"
+                      placeholder="Enter OTP"
+                      value={otp}
+                      onChange={(e) => setOtp(e.target.value)}
+                    />
+                  </div>
+
+                  <Button type="submit" className="w-full" disabled={loading}>
+                    {loading ? 'Verifying...' : 'Verify OTP'}
+                  </Button>
+                </form>
+              )}
+
               <div className="mt-6 text-center text-sm">
                 <p className="text-muted-foreground">
                   Don't have an account?{' '}
-                  <button type="button" onClick={() => setMode('signup')} className="font-medium text-primary hover:underline">
+                  <button
+                    type="button"
+                    onClick={() => setMode('signup')}
+                    className="font-medium text-primary hover:underline"
+                  >
                     Sign up
                   </button>
                 </p>
